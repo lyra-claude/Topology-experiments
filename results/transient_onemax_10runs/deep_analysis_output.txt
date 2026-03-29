@@ -1,0 +1,182 @@
+================================================================================
+  DEEP TRANSIENT ANALYSIS — ANOMALIES & EFFECT SIZES
+================================================================================
+
+================================================================================
+  PER-RUN SPEARMAN: λ₂ vs metrics (80 data points: 8 topos × 10 seeds)
+================================================================================
+
+  Gen 20 (n=80):
+    λ₂ vs Fitness:   ρ = 0.5720, p = 0.00000000  ***
+    λ₂ vs Diversity: ρ = -0.5002, p = 0.00000034  ***
+
+  Gen 30 (n=80):
+    λ₂ vs Fitness:   ρ = 0.6178, p = 0.00000000  ***
+    λ₂ vs Diversity: ρ = -0.4992, p = 0.00000036  ***
+
+  Gen 40 (n=80):
+    λ₂ vs Fitness:   ρ = 0.3760, p = 0.00033891  ***
+    λ₂ vs Diversity: ρ = -0.0788, p = 0.48496116  n.s.
+
+  Gen 50 (n=80):
+    λ₂ vs Fitness:   ρ = 0.1834, p = 0.09932746  n.s.
+    λ₂ vs Diversity: ρ = -0.0832, p = 0.46094832  n.s.
+
+================================================================================
+  COHEN'S d EFFECT SIZES: Complete vs Disconnected
+================================================================================
+
+  Gen 20:
+    Fitness:   d = +7.277 (huge)
+    Diversity: d = -5.456 (huge)
+
+  Gen 30:
+    Fitness:   d = +8.896 (huge)
+    Diversity: d = -5.440 (huge)
+
+  Gen 40:
+    Fitness:   d = +2.526 (huge)
+    Diversity: d = -0.524 (medium)
+
+  Gen 50:
+    Fitness:   d = +1.057 (very large)
+    Diversity: d = -0.491 (small)
+
+================================================================================
+  STAR ANOMALY: Detailed Investigation
+================================================================================
+
+  Star (λ₂=1.0) ranks BELOW ring (λ₂=0.59) and random-regular (λ₂=0.27)
+  This is the main source of rank disruption.
+
+  --- Gen 20 ---
+    Star vs Ring: Star=0.9251, Ring=0.9292, d=-0.868 (Star < Ring)
+    Star vs RandReg: Star=0.9251, RR=0.9314, d=-1.232 (Star < RR)
+    Star diversity=0.1359, Ring diversity=0.1292
+  --- Gen 30 ---
+    Star vs Ring: Star=0.9761, Ring=0.9771, d=-0.491 (Star < Ring)
+    Star vs RandReg: Star=0.9761, RR=0.9778, d=-0.840 (Star < RR)
+    Star diversity=0.0477, Ring diversity=0.0465
+
+  Star topology interpretation:
+  Hub-and-spoke creates an asymmetric migration pattern:
+  - Hub island receives from ALL others (over-mixing at center)
+  - Spoke islands receive ONLY from hub (under-mixing at periphery)
+  - Net effect: diversity preserved in spokes, but convergence slowed
+  - This is a STRUCTURAL anomaly: λ₂ measures algebraic connectivity
+    but doesn't capture the ASYMMETRY of information flow.
+
+================================================================================
+  BARBELL OVERPERFORMANCE: Detailed Investigation
+================================================================================
+
+  Barbell (λ₂=0.07) ranks 3rd in fitness at gen 20!
+  Expected rank by λ₂: 7th (near disconnected)
+
+  Gen 20:
+    Barbell=0.9351 vs Disconnected=0.9161, d=+5.119
+    Barbell=0.9351 vs Hypercube=0.9342, d=+0.219
+    Barbell diversity=0.1204 vs Disconnected diversity=0.1499
+  Gen 30:
+    Barbell=0.9786 vs Disconnected=0.9665, d=+6.761
+    Barbell=0.9786 vs Hypercube=0.9789, d=-0.183
+    Barbell diversity=0.0437 vs Disconnected diversity=0.0643
+
+  Barbell interpretation:
+  Two 4-island cliques with a single bridge.
+  Within-clique: COMPLETE connectivity (λ₂=4 for K4)
+  Between-clique: single bridge (bottleneck)
+  Net effect: fast mixing within each clique + selective transfer between cliques
+  This is the GOLDILOCKS topology — λ₂ underestimates its effective connectivity
+  because the INTRA-clique connectivity is what drives early convergence,
+  while the bridge preserves inter-clique diversity.
+
+================================================================================
+  GOLDILOCKS ZONE: Middle-connectivity vs Extremes
+================================================================================
+
+  Gen 20:
+    Low (disconnected):  fit=0.9161, div=0.1499
+    Mid (6 topologies):  fit=0.9318, div=0.1253
+    High (complete):     fit=0.9417, div=0.1102
+    Fitness ordering: Low < Mid < High
+
+  Gen 30:
+    Low (disconnected):  fit=0.9665, div=0.0643
+    Mid (6 topologies):  fit=0.9779, div=0.0446
+    High (complete):     fit=0.9808, div=0.0394
+    Fitness ordering: Low < Mid < High
+
+================================================================================
+  SENSITIVITY: Spearman WITHOUT Star
+================================================================================
+
+  Gen 20 (7 topologies, excluding Star):
+    λ₂ vs Fitness:   ρ = 0.6786, p = 0.038856  *
+    λ₂ vs Diversity: ρ = -0.5714, p = 0.119471  n.s.
+
+  Gen 30 (7 topologies, excluding Star):
+    λ₂ vs Fitness:   ρ = 0.8571, p = 0.000198  ***
+    λ₂ vs Diversity: ρ = -0.6071, p = 0.087532  n.s.
+
+================================================================================
+  PER-RUN SPEARMAN WITHOUT STAR (n=70)
+================================================================================
+
+  Gen 20 (n=70, excluding Star):
+    λ₂ vs Fitness:   ρ = 0.6321, p = 0.00000000  ***
+    λ₂ vs Diversity: ρ = -0.5599, p = 0.00000003  ***
+
+  Gen 30 (n=70, excluding Star):
+    λ₂ vs Fitness:   ρ = 0.6706, p = 0.00000000  ***
+    λ₂ vs Diversity: ρ = -0.5470, p = 0.00000007  ***
+
+================================================================================
+  VARIANCE DECOMPOSITION: Between vs Within Topology
+================================================================================
+
+  Gen 20 (Mean Fitness):
+    SS_between = 0.00421953
+    SS_within  = 0.00125103
+    SS_total   = 0.00547056
+    η² = 0.7713 (77.1% of variance explained by topology)
+    F(7,72) = 34.692
+
+  Gen 20 (Diversity):
+    SS_between = 0.01015939
+    SS_within  = 0.00746610
+    SS_total   = 0.01762549
+    η² = 0.5764 (57.6% of variance explained by topology)
+    F(7,72) = 13.996
+
+  Gen 30 (Mean Fitness):
+    SS_between = 0.00135145
+    SS_within  = 0.00018454
+    SS_total   = 0.00153599
+    η² = 0.8799 (88.0% of variance explained by topology)
+    F(7,72) = 75.325
+
+  Gen 30 (Diversity):
+    SS_between = 0.00406575
+    SS_within  = 0.00130730
+    SS_total   = 0.00537305
+    η² = 0.7567 (75.7% of variance explained by topology)
+    F(7,72) = 31.989
+
+================================================================================
+  WINDOW OF MAXIMUM DIFFERENTIATION
+================================================================================
+
+  Range of mean fitness across topologies at each generation:
+    Gen   0: Fitness range = 0.000000, Diversity range = 0.000000
+    Gen  10: Fitness range = 0.000000, Diversity range = 0.000000
+    Gen  20: Fitness range = 0.025585, Diversity range = 0.039700
+    Gen  30: Fitness range = 0.014253, Diversity range = 0.024900
+    Gen  40: Fitness range = 0.002805, Diversity range = 0.004750
+    Gen  50: Fitness range = 0.001125, Diversity range = 0.002150
+    Gen  60: Fitness range = 0.000260, Diversity range = 0.000650
+    Gen  70: Fitness range = 0.000557, Diversity range = 0.001500
+    Gen  80: Fitness range = 0.000770, Diversity range = 0.001500
+    Gen  90: Fitness range = 0.000178, Diversity range = 0.000500
+    Gen 100: Fitness range = 0.000458, Diversity range = 0.001050
+
