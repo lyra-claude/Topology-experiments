@@ -1,0 +1,2 @@
+Running: ring | grid=8x8 | islands=8 | pop=50 | migInterval=10 | migrants=5 | gens=500 | seed=42
+Done.

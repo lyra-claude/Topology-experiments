@@ -1,7 +1,9 @@
 module Main where
 
 import IslandGA (Topology, Stats(..), runSimulation)
-import Maze (Maze)  -- import Domain instance for Maze
+import Maze (Maze)    -- Domain instance for 15x15 Maze
+import Maze8 (Maze8)  -- Domain instance for 8x8 Maze
+import OneMax (OneMax) -- Domain instance for OneMax
 import Domain (Domain(..))
 
 import qualified Data.Vector as V
@@ -63,25 +65,17 @@ barbell n =
      )
 
 -- | Watts-Strogatz small-world graph.
--- Start with ring lattice of degree k (each node connected to k/2 neighbors
--- on each side), then rewire each edge with probability p.
--- Uses a deterministic seed for reproducibility.
 wattsStrogatz :: Int -> Int -> Double -> Int -> Topology
 wattsStrogatz n k p seed =
-  let -- Start with ring lattice
-      halfK = k `div` 2
+  let halfK = k `div` 2
       ringLattice = V.generate n (\i ->
         [j | d <- [1..halfK], let j = (i + d) `mod` n] ++
         [j | d <- [1..halfK], let j = (i - d) `mod` n])
 
-      -- Rewire edges deterministically using a simple LCG
-      -- We only rewire "forward" edges (i -> (i+d) mod n for d in 1..halfK)
-      -- to avoid double-rewiring
       rewire :: V.Vector [Int] -> V.Vector [Int]
       rewire adj0 = foldl rewireEdge adj0
         [(i, (i + d) `mod` n) | i <- [0..n-1], d <- [1..halfK]]
         where
-          -- Simple deterministic hash for "should we rewire this edge?"
           shouldRewire i j =
             let h = (i * 7919 + j * 6271 + seed * 1031) `mod` 10000
             in fromIntegral h / 10000.0 < p
@@ -90,17 +84,13 @@ wattsStrogatz n k p seed =
           rewireEdge adj (i, j)
             | not (shouldRewire i j) = adj
             | otherwise =
-                -- Pick a new target for i (deterministic)
                 let newJ = ((i * 3571 + j * 2749 + seed * 947) `mod` (n - 1))
                     newJ' = if newJ >= i then newJ + 1 else newJ
                 in if newJ' == j || newJ' `elem` (adj V.! i)
-                     then adj  -- skip if same or already connected
+                     then adj
                      else
-                       -- Remove j from i's neighbors, add newJ'
                        let adjI = filter (/= j) (adj V.! i) ++ [newJ']
-                           -- Remove i from j's neighbors
                            adjJ = filter (/= i) (adj V.! j)
-                           -- Add i to newJ's neighbors
                            adjN = (adj V.! newJ') ++ [i]
                            adj' = adj V.// [(i, adjI), (j, adjJ), (newJ', adjN)]
                        in adj'
@@ -108,14 +98,9 @@ wattsStrogatz n k p seed =
   in rewire ringLattice
 
 -- | Random 3-regular graph (deterministic construction).
--- Uses a simple pairing algorithm with a fixed seed.
--- For small n (8, 10, 16, 20), constructs a 3-regular graph.
 randomRegular :: Int -> Int -> Int -> Topology
 randomRegular n d seed =
-  -- Simple construction: start with ring, add d-2 more connections deterministically
-  -- For d=3 on n=8: ring gives degree 2, add one more connection per node
   let base = ring n
-      -- Add extra edges to reach degree d
       addExtras :: V.Vector [Int] -> V.Vector [Int]
       addExtras adj = foldl tryAddEdge adj [0 .. n - 1]
         where
@@ -125,13 +110,11 @@ randomRegular n d seed =
             in if currentDeg >= d
                  then adj'
                  else
-                   -- Find a node to connect to
                    let target = ((i * 5021 + seed * 1733) `mod` (n - 2))
                        target' = if target >= i then target + 1 else target
-                       -- Ensure target also has room
                        targetDeg = length (adj' V.! target')
                    in if target' `elem` (adj' V.! i) || targetDeg >= d
-                        then adj'  -- skip
+                        then adj'
                         else adj' V.// [ (i, target' : (adj' V.! i))
                                        , (target', i : (adj' V.! target'))
                                        ]
@@ -141,7 +124,6 @@ randomRegular n d seed =
 -- Topology lookup
 -- ---------------------------------------------------------------------------
 
--- | Parse topology name and build the corresponding adjacency list.
 buildTopology :: String -> Int -> Topology
 buildTopology name n = case name of
   "disconnected"    -> disconnected n
@@ -155,52 +137,126 @@ buildTopology name n = case name of
   _                 -> error $ "Unknown topology: " ++ name
 
 -- ---------------------------------------------------------------------------
+-- Run and print stats
+-- ---------------------------------------------------------------------------
+
+printStats :: [Stats] -> IO ()
+printStats stats = do
+  putStrLn "generation,meanFitness,bestFitness,diversity"
+  mapM_ (\s -> do
+    putStrLn $ show (generation s)
+          ++ "," ++ show (meanFitness s)
+          ++ "," ++ show (bestFitness s)
+          ++ "," ++ show (diversity s)
+    hFlush stdout
+    ) stats
+
+-- ---------------------------------------------------------------------------
+-- Parsed configuration
+-- ---------------------------------------------------------------------------
+
+data Config = Config
+  { cfgDomain       :: String   -- "maze" | "onemax"
+  , cfgGridSize     :: Int      -- only used for maze domain
+  , cfgTopology     :: String
+  , cfgNumIslands   :: Int
+  , cfgPopSize      :: Int
+  , cfgMigInterval  :: Int
+  , cfgNumMigrants  :: Int
+  , cfgTotalGens    :: Int
+  , cfgSeed         :: Int
+  }
+
+-- ---------------------------------------------------------------------------
 -- Main
 -- ---------------------------------------------------------------------------
 
 main :: IO ()
 main = do
   args <- getArgs
-  case args of
-    [topoName, nIslandsStr, popSizeStr, migIntervalStr, nMigrantsStr, totalGensStr, seedStr] -> do
-      let numIslands   = read nIslandsStr   :: Int
-          popSize      = read popSizeStr    :: Int
-          migInterval  = read migIntervalStr :: Int
-          nMigrants    = read nMigrantsStr  :: Int
-          totalGens    = read totalGensStr   :: Int
-          seed         = read seedStr        :: Int
-          gen          = mkStdGen seed
-          topo         = buildTopology topoName numIslands
+  case parseArgs args of
+    Just cfg -> do
+      let gen  = mkStdGen (cfgSeed cfg)
+          topo = buildTopology (cfgTopology cfg) (cfgNumIslands cfg)
 
-      hPutStrLn stderr $ "Running: " ++ topoName
-                      ++ " | islands=" ++ show numIslands
-                      ++ " | pop=" ++ show popSize
-                      ++ " | migInterval=" ++ show migInterval
-                      ++ " | migrants=" ++ show nMigrants
-                      ++ " | gens=" ++ show totalGens
-                      ++ " | seed=" ++ show seed
+      hPutStrLn stderr $ "Running: " ++ cfgTopology cfg
+                      ++ " | domain=" ++ cfgDomain cfg
+                      ++ " | islands=" ++ show (cfgNumIslands cfg)
+                      ++ " | pop=" ++ show (cfgPopSize cfg)
+                      ++ " | migInterval=" ++ show (cfgMigInterval cfg)
+                      ++ " | migrants=" ++ show (cfgNumMigrants cfg)
+                      ++ " | gens=" ++ show (cfgTotalGens cfg)
+                      ++ " | seed=" ++ show (cfgSeed cfg)
 
-      -- Print CSV header
-      putStrLn "generation,meanFitness,bestFitness,diversity"
-
-      -- Run simulation (Maze domain)
-      let stats = runSimulation (Proxy :: Proxy Maze) popSize migInterval nMigrants totalGens topo numIslands gen
-
-      -- Print each stats row
-      mapM_ (\s -> do
-        putStrLn $ show (generation s)
-              ++ "," ++ show (meanFitness s)
-              ++ "," ++ show (bestFitness s)
-              ++ "," ++ show (diversity s)
-        hFlush stdout
-        ) stats
+      case cfgDomain cfg of
+        "onemax" -> do
+          let stats = runSimulation (Proxy :: Proxy OneMax)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
+        "maze" ->
+          case cfgGridSize cfg of
+            8 -> do
+              let stats = runSimulation (Proxy :: Proxy Maze8)
+                            (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                            (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+              printStats stats
+            15 -> do
+              let stats = runSimulation (Proxy :: Proxy Maze)
+                            (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                            (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+              printStats stats
+            gs -> do
+              hPutStrLn stderr $ "Unsupported grid size: " ++ show gs ++ ". Use 8 or 15."
+        other -> do
+          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze' or 'onemax'."
 
       hPutStrLn stderr "Done."
 
-    _ -> do
-      hPutStrLn stderr "Usage: topology-sim <topology-name> <num-islands> <pop-size> <migration-interval> <num-migrants> <total-generations> <seed>"
+    Nothing -> do
+      hPutStrLn stderr "Usage: topology-sim [--domain D] [--grid N] <topology-name> <num-islands> <pop-size> <migration-interval> <num-migrants> <total-generations> <seed>"
+      hPutStrLn stderr ""
+      hPutStrLn stderr "Options:"
+      hPutStrLn stderr "  --domain D  Domain: 'maze' (default) or 'onemax'"
+      hPutStrLn stderr "  --grid N    Grid size for maze domain (default: 15, options: 8, 15)"
       hPutStrLn stderr ""
       hPutStrLn stderr "Topologies: disconnected, ring, star, complete, hypercube, barbell, watts-strogatz, random-regular"
       hPutStrLn stderr ""
-      hPutStrLn stderr "Example:"
-      hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42"
+      hPutStrLn stderr "Examples:"
+      hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42                        # 15x15 maze (default)"
+      hPutStrLn stderr "  topology-sim --grid 8 ring 8 50 10 5 500 42               # 8x8 maze"
+      hPutStrLn stderr "  topology-sim --domain onemax ring 8 50 10 5 500 42        # OneMax"
+      hPutStrLn stderr "  topology-sim --domain onemax --grid 8 ring 8 50 10 5 500 42  # --grid ignored for onemax"
+
+-- ---------------------------------------------------------------------------
+-- Argument parsing
+-- ---------------------------------------------------------------------------
+
+-- | Parse command-line arguments, extracting optional --domain and --grid flags.
+-- Flags can appear in any order before the positional arguments.
+parseArgs :: [String] -> Maybe Config
+parseArgs args =
+  let (domain, grid, rest) = extractFlags args "maze" 15
+  in case rest of
+    [topoName, ni, ps, mi, nm, tg, sd] ->
+      Just Config
+        { cfgDomain      = domain
+        , cfgGridSize    = grid
+        , cfgTopology    = topoName
+        , cfgNumIslands  = read ni
+        , cfgPopSize     = read ps
+        , cfgMigInterval = read mi
+        , cfgNumMigrants = read nm
+        , cfgTotalGens   = read tg
+        , cfgSeed        = read sd
+        }
+    _ -> Nothing
+
+-- | Extract --domain and --grid flags from args, returning defaults for unset ones.
+extractFlags :: [String] -> String -> Int -> (String, Int, [String])
+extractFlags ("--domain" : d : rest) _defDomain defGrid =
+  extractFlags rest d defGrid
+extractFlags ("--grid" : g : rest) defDomain _defGrid =
+  extractFlags rest defDomain (read g)
+extractFlags rest defDomain defGrid =
+  (defDomain, defGrid, rest)

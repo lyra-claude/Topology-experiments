@@ -1,11 +1,9 @@
 {-# LANGUAGE BangPatterns #-}
 
-module Maze
-  ( Maze(..)
-  , gridSize
-  , numEdges
-  , decodeMaze
-  , bfsShortestPath
+module Maze8
+  ( Maze8(..)
+  , gridSize8
+  , numEdges8
   ) where
 
 import Domain
@@ -16,63 +14,54 @@ import qualified Data.IntSet as IS
 import System.Random (StdGen, randomR)
 
 -- ---------------------------------------------------------------------------
--- Constants (15x15)
+-- Constants (8x8)
 -- ---------------------------------------------------------------------------
 
--- | Grid dimension (15x15).
-gridSize :: Int
-gridSize = 15
+-- | Grid dimension (8x8).
+gridSize8 :: Int
+gridSize8 = 8
 
-numEdges :: Int
-numEdges = numEdgesFor gridSize
-
--- ---------------------------------------------------------------------------
--- Maze type
--- ---------------------------------------------------------------------------
-
--- | A maze genome: a permutation of edge indices [0..numEdges-1].
-newtype Maze = Maze { edgePermutation :: VU.Vector Int }
+-- | Total edges in 8x8 grid: 8*7 + 7*8 = 56 + 56 = 112.
+numEdges8 :: Int
+numEdges8 = numEdgesFor gridSize8
 
 -- ---------------------------------------------------------------------------
--- Wrappers delegating to MazeCore
+-- Maze8 type
 -- ---------------------------------------------------------------------------
 
-decodeMaze :: Maze -> IS.IntSet
-decodeMaze (Maze perm) = decodeMazeFor gridSize perm
-
-bfsShortestPath :: IS.IntSet -> Int
-bfsShortestPath = bfsShortestPathFor gridSize
+-- | An 8x8 maze genome: a permutation of edge indices [0..numEdges8-1].
+newtype Maze8 = Maze8 { edgePermutation8 :: VU.Vector Int }
 
 -- ---------------------------------------------------------------------------
--- Domain instance (15x15)
+-- Domain instance (8x8)
 -- ---------------------------------------------------------------------------
 
-instance Domain Maze where
+instance Domain Maze8 where
 
   randomIndividual gen =
-    let (perm, gen') = fisherYates numEdges gen
-    in (Maze perm, gen')
+    let (perm, gen') = fisherYates numEdges8 gen
+    in (Maze8 perm, gen')
 
-  fitness maze =
-    let tree = decodeMaze maze
-        pathLen = bfsShortestPath tree
-    in fromIntegral pathLen / fromIntegral (numCellsFor gridSize)
+  fitness (Maze8 perm) =
+    let tree = decodeMazeFor gridSize8 perm
+        pathLen = bfsShortestPathFor gridSize8 tree
+    in fromIntegral pathLen / fromIntegral (numCellsFor gridSize8)
 
-  crossover (Maze p1) (Maze p2) gen =
+  crossover (Maze8 p1) (Maze8 p2) gen =
     let len = VU.length p1
         (i, gen1) = randomR (0, len - 2) gen
         (j, gen2) = randomR (i + 1, len - 1) gen1
         child = orderCrossover p1 p2 i j
-    in (Maze child, gen2)
+    in (Maze8 child, gen2)
 
-  mutate (Maze perm) gen =
+  mutate (Maze8 perm) gen =
     let len = VU.length perm
         (i, gen1) = randomR (0, len - 1) gen
         (j, gen2) = randomR (0, len - 1) gen1
         perm' = swapVec perm i j
-    in (Maze perm', gen2)
+    in (Maze8 perm', gen2)
 
-  distance (Maze p1) (Maze p2) =
+  distance (Maze8 p1) (Maze8 p2) =
     let len = VU.length p1
         diffs = VU.sum $ VU.zipWith (\a b -> if a /= b then (1 :: Int) else 0) p1 p2
     in fromIntegral diffs / fromIntegral len
