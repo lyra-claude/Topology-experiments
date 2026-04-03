@@ -44,8 +44,15 @@ instance Domain Maze8 where
 
   fitness (Maze8 perm) =
     let tree = decodeMazeFor gridSize8 perm
-        pathLen = bfsShortestPathFor gridSize8 tree
-    in fromIntegral pathLen / fromIntegral (numCellsFor gridSize8)
+        nc   = numCellsFor gridSize8
+        ncD  = fromIntegral nc
+        -- Path length component
+        pathLen    = fromIntegral (bfsShortestPathFor gridSize8 tree) / ncD
+        -- Degree-based components
+        degs       = cellDegreesFor gridSize8 tree
+        deadEnds   = fromIntegral (VU.length (VU.filter (== 1) degs)) / ncD
+        junctions  = fromIntegral (VU.length (VU.filter (>= 3) degs)) / ncD
+    in 0.5 * pathLen + 0.3 * deadEnds + 0.2 * junctions
 
   crossover (Maze8 p1) (Maze8 p2) gen =
     let len = VU.length p1
@@ -62,6 +69,9 @@ instance Domain Maze8 where
     in (Maze8 perm', gen2)
 
   distance (Maze8 p1) (Maze8 p2) =
-    let len = VU.length p1
-        diffs = VU.sum $ VU.zipWith (\a b -> if a /= b then (1 :: Int) else 0) p1 p2
-    in fromIntegral diffs / fromIntegral len
+    let tree1 = decodeMazeFor gridSize8 p1
+        tree2 = decodeMazeFor gridSize8 p2
+        inter = IS.size (IS.intersection tree1 tree2)
+        uni   = IS.size (IS.union tree1 tree2)
+    in if uni == 0 then 0.0
+       else 1.0 - fromIntegral inter / fromIntegral uni

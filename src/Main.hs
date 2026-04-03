@@ -4,6 +4,7 @@ import IslandGA (Topology, Stats(..), runSimulation)
 import Maze (Maze)    -- Domain instance for 15x15 Maze
 import Maze8 (Maze8)  -- Domain instance for 8x8 Maze
 import OneMax (OneMax) -- Domain instance for OneMax
+import NKLandscape (NK0Individual, NK2Individual, NK4Individual, NK6Individual)
 import Domain (Domain(..))
 
 import qualified Data.Vector as V
@@ -234,6 +235,299 @@ ringSkip2 = V.fromList [ [6, 7]
                         ]
 
 -- ---------------------------------------------------------------------------
+-- Foster census cubic symmetric graphs (13 graphs, all 3-regular)
+-- ---------------------------------------------------------------------------
+
+-- | K4 (4 vertices, cubic symmetric)
+fosterK4 :: Topology
+fosterK4 = V.fromList
+  [ [1, 2, 3]
+  , [0, 2, 3]
+  , [0, 1, 3]
+  , [0, 1, 2]
+  ]
+
+-- | K33 (6 vertices, cubic symmetric)
+fosterK33 :: Topology
+fosterK33 = V.fromList
+  [ [3, 4, 5]
+  , [3, 4, 5]
+  , [3, 4, 5]
+  , [0, 1, 2]
+  , [0, 1, 2]
+  , [0, 1, 2]
+  ]
+
+-- | Cube / Q3 (8 vertices, cubic symmetric)
+fosterCube :: Topology
+fosterCube = V.fromList
+  [ [1, 3, 4]
+  , [0, 2, 7]
+  , [1, 3, 6]
+  , [0, 2, 5]
+  , [0, 5, 7]
+  , [3, 4, 6]
+  , [2, 5, 7]
+  , [1, 4, 6]
+  ]
+
+-- | Petersen (10 vertices, cubic symmetric)
+fosterPetersen :: Topology
+fosterPetersen = V.fromList
+  [ [1, 4, 5]
+  , [0, 2, 6]
+  , [1, 3, 7]
+  , [2, 4, 8]
+  , [0, 3, 9]
+  , [0, 7, 8]
+  , [1, 8, 9]
+  , [2, 5, 9]
+  , [3, 5, 6]
+  , [4, 6, 7]
+  ]
+
+-- | Heawood (14 vertices, cubic symmetric)
+fosterHeawood :: Topology
+fosterHeawood = V.fromList
+  [ [1, 5, 13]
+  , [0, 2, 10]
+  , [1, 3, 7]
+  , [2, 4, 12]
+  , [3, 5, 9]
+  , [0, 4, 6]
+  , [5, 7, 11]
+  , [2, 6, 8]
+  , [7, 9, 13]
+  , [4, 8, 10]
+  , [1, 9, 11]
+  , [6, 10, 12]
+  , [3, 11, 13]
+  , [0, 8, 12]
+  ]
+
+-- | Mobius-Kantor (16 vertices, cubic symmetric)
+fosterMobiusKantor :: Topology
+fosterMobiusKantor = V.fromList
+  [ [1, 5, 15]
+  , [0, 2, 12]
+  , [1, 3, 7]
+  , [2, 4, 14]
+  , [3, 5, 9]
+  , [0, 4, 6]
+  , [5, 7, 11]
+  , [2, 6, 8]
+  , [7, 9, 13]
+  , [4, 8, 10]
+  , [9, 11, 15]
+  , [6, 10, 12]
+  , [1, 11, 13]
+  , [8, 12, 14]
+  , [3, 13, 15]
+  , [0, 10, 14]
+  ]
+
+-- | Pappus (18 vertices, cubic symmetric)
+fosterPappus :: Topology
+fosterPappus = V.fromList
+  [ [1, 5, 17]
+  , [0, 2, 8]
+  , [1, 3, 13]
+  , [2, 4, 10]
+  , [3, 5, 15]
+  , [0, 4, 6]
+  , [5, 7, 11]
+  , [6, 8, 14]
+  , [1, 7, 9]
+  , [8, 10, 16]
+  , [3, 9, 11]
+  , [6, 10, 12]
+  , [11, 13, 17]
+  , [2, 12, 14]
+  , [7, 13, 15]
+  , [4, 14, 16]
+  , [9, 15, 17]
+  , [0, 12, 16]
+  ]
+
+-- | Dodecahedron (20 vertices, cubic symmetric)
+fosterDodecahedron :: Topology
+fosterDodecahedron = V.fromList
+  [ [1, 10, 19]
+  , [0, 2, 8]
+  , [1, 3, 6]
+  , [2, 4, 19]
+  , [3, 5, 17]
+  , [4, 6, 15]
+  , [2, 5, 7]
+  , [6, 8, 14]
+  , [1, 7, 9]
+  , [8, 10, 13]
+  , [0, 9, 11]
+  , [10, 12, 18]
+  , [11, 13, 16]
+  , [9, 12, 14]
+  , [7, 13, 15]
+  , [5, 14, 16]
+  , [12, 15, 17]
+  , [4, 16, 18]
+  , [11, 17, 19]
+  , [0, 3, 18]
+  ]
+
+-- | Desargues (20 vertices, cubic symmetric)
+fosterDesargues :: Topology
+fosterDesargues = V.fromList
+  [ [1, 5, 19]
+  , [0, 2, 16]
+  , [1, 3, 11]
+  , [2, 4, 14]
+  , [3, 5, 9]
+  , [0, 4, 6]
+  , [5, 7, 15]
+  , [6, 8, 18]
+  , [7, 9, 13]
+  , [4, 8, 10]
+  , [9, 11, 19]
+  , [2, 10, 12]
+  , [11, 13, 17]
+  , [8, 12, 14]
+  , [3, 13, 15]
+  , [6, 14, 16]
+  , [1, 15, 17]
+  , [12, 16, 18]
+  , [7, 17, 19]
+  , [0, 10, 18]
+  ]
+
+-- | Nauru / GP(12,5) (24 vertices, cubic symmetric)
+fosterNauru :: Topology
+fosterNauru = V.fromList
+  [ [1, 11, 12]
+  , [0, 2, 13]
+  , [1, 3, 14]
+  , [2, 4, 15]
+  , [3, 5, 16]
+  , [4, 6, 17]
+  , [5, 7, 18]
+  , [6, 8, 19]
+  , [7, 9, 20]
+  , [8, 10, 21]
+  , [9, 11, 22]
+  , [0, 10, 23]
+  , [0, 17, 19]
+  , [1, 18, 20]
+  , [2, 19, 21]
+  , [3, 20, 22]
+  , [4, 21, 23]
+  , [5, 12, 22]
+  , [6, 13, 23]
+  , [7, 12, 14]
+  , [8, 13, 15]
+  , [9, 14, 16]
+  , [10, 15, 17]
+  , [11, 16, 18]
+  ]
+
+-- | F26A (26 vertices, cubic symmetric)
+fosterF26A :: Topology
+fosterF26A = V.fromList
+  [ [1, 19, 25]
+  , [0, 2, 8]
+  , [1, 3, 21]
+  , [2, 4, 10]
+  , [3, 5, 23]
+  , [4, 6, 12]
+  , [5, 7, 25]
+  , [6, 8, 14]
+  , [1, 7, 9]
+  , [8, 10, 16]
+  , [3, 9, 11]
+  , [10, 12, 18]
+  , [5, 11, 13]
+  , [12, 14, 20]
+  , [7, 13, 15]
+  , [14, 16, 22]
+  , [9, 15, 17]
+  , [16, 18, 24]
+  , [11, 17, 19]
+  , [0, 18, 20]
+  , [13, 19, 21]
+  , [2, 20, 22]
+  , [15, 21, 23]
+  , [4, 22, 24]
+  , [17, 23, 25]
+  , [0, 6, 24]
+  ]
+
+-- | Coxeter (28 vertices, cubic symmetric, LCF [5,-5,13,-13] x 7)
+fosterCoxeter :: Topology
+fosterCoxeter = V.fromList
+  [ [1, 5, 27]
+  , [0, 2, 24]
+  , [1, 3, 15]
+  , [2, 4, 18]
+  , [3, 5, 9]
+  , [0, 4, 6]
+  , [5, 7, 19]
+  , [6, 8, 22]
+  , [7, 9, 13]
+  , [4, 8, 10]
+  , [9, 11, 23]
+  , [10, 12, 26]
+  , [11, 13, 17]
+  , [8, 12, 14]
+  , [13, 15, 27]
+  , [2, 14, 16]
+  , [15, 17, 21]
+  , [12, 16, 18]
+  , [3, 17, 19]
+  , [6, 18, 20]
+  , [19, 21, 25]
+  , [16, 20, 22]
+  , [7, 21, 23]
+  , [10, 22, 24]
+  , [1, 23, 25]
+  , [20, 24, 26]
+  , [11, 25, 27]
+  , [0, 14, 26]
+  ]
+
+-- | Tutte-Coxeter / Levi graph (30 vertices, cubic symmetric)
+fosterTutteCoxeter :: Topology
+fosterTutteCoxeter = V.fromList
+  [ [1, 17, 29]
+  , [0, 2, 22]
+  , [1, 3, 9]
+  , [2, 4, 26]
+  , [3, 5, 13]
+  , [4, 6, 18]
+  , [5, 7, 23]
+  , [6, 8, 28]
+  , [7, 9, 15]
+  , [2, 8, 10]
+  , [9, 11, 19]
+  , [10, 12, 24]
+  , [11, 13, 29]
+  , [4, 12, 14]
+  , [13, 15, 21]
+  , [8, 14, 16]
+  , [15, 17, 25]
+  , [0, 16, 18]
+  , [5, 17, 19]
+  , [10, 18, 20]
+  , [19, 21, 27]
+  , [14, 20, 22]
+  , [1, 21, 23]
+  , [6, 22, 24]
+  , [11, 23, 25]
+  , [16, 24, 26]
+  , [3, 25, 27]
+  , [20, 26, 28]
+  , [7, 27, 29]
+  , [0, 12, 28]
+  ]
+
+-- ---------------------------------------------------------------------------
 -- Topology lookup
 -- ---------------------------------------------------------------------------
 
@@ -247,6 +541,20 @@ buildTopology name n = case name of
   "barbell"           -> barbell n
   "watts-strogatz"    -> wattsStrogatz n 4 0.3 42
   "random-regular"    -> randomRegular n 3 42
+  -- Foster census cubic symmetric graphs (fixed topology, ignore n)
+  "k4"              -> fosterK4
+  "k33"             -> fosterK33
+  "cube"            -> fosterCube
+  "petersen"        -> fosterPetersen
+  "heawood"         -> fosterHeawood
+  "mobius-kantor"   -> fosterMobiusKantor
+  "pappus"          -> fosterPappus
+  "dodecahedron"    -> fosterDodecahedron
+  "desargues"       -> fosterDesargues
+  "nauru"           -> fosterNauru
+  "f26a"            -> fosterF26A
+  "coxeter"         -> fosterCoxeter
+  "tutte-coxeter"   -> fosterTutteCoxeter
   -- Directed topologies (n=8, m=16, varying cycle count)
   "dag-layer"         -> dagLayer
   "dag-wide"          -> dagWide
@@ -330,8 +638,28 @@ main = do
               printStats stats
             gs -> do
               hPutStrLn stderr $ "Unsupported grid size: " ++ show gs ++ ". Use 8 or 15."
+        "nk0" -> do
+          let stats = runSimulation (Proxy :: Proxy NK0Individual)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
+        "nk2" -> do
+          let stats = runSimulation (Proxy :: Proxy NK2Individual)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
+        "nk4" -> do
+          let stats = runSimulation (Proxy :: Proxy NK4Individual)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
+        "nk6" -> do
+          let stats = runSimulation (Proxy :: Proxy NK6Individual)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
         other -> do
-          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze' or 'onemax'."
+          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze', 'onemax', 'nk0', 'nk2', 'nk4', or 'nk6'."
 
       hPutStrLn stderr "Done."
 
@@ -339,7 +667,7 @@ main = do
       hPutStrLn stderr "Usage: topology-sim [--domain D] [--grid N] <topology-name> <num-islands> <pop-size> <migration-interval> <num-migrants> <total-generations> <seed>"
       hPutStrLn stderr ""
       hPutStrLn stderr "Options:"
-      hPutStrLn stderr "  --domain D  Domain: 'maze' (default) or 'onemax'"
+      hPutStrLn stderr "  --domain D  Domain: 'maze' (default), 'onemax', 'nk0', 'nk2', 'nk4', or 'nk6'"
       hPutStrLn stderr "  --grid N    Grid size for maze domain (default: 15, options: 8, 15)"
       hPutStrLn stderr ""
       hPutStrLn stderr "Topologies: disconnected, ring, star, complete, hypercube, barbell, watts-strogatz, random-regular"
@@ -349,6 +677,7 @@ main = do
       hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42                        # 15x15 maze (default)"
       hPutStrLn stderr "  topology-sim --grid 8 ring 8 50 10 5 500 42               # 8x8 maze"
       hPutStrLn stderr "  topology-sim --domain onemax ring 8 50 10 5 500 42        # OneMax"
+      hPutStrLn stderr "  topology-sim --domain nk4 ring 8 50 10 5 500 42             # NK landscape (K=4)"
       hPutStrLn stderr "  topology-sim --domain onemax --grid 8 ring 8 50 10 5 500 42  # --grid ignored for onemax"
 
 -- ---------------------------------------------------------------------------

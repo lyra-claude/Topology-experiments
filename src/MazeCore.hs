@@ -11,6 +11,8 @@ module MazeCore
   , edgeCellsFor
     -- * Kruskal decode
   , decodeMazeFor
+    -- * Cell degrees
+  , cellDegreesFor
     -- * BFS
   , bfsShortestPathFor
   , cellNeighborsFor
@@ -108,6 +110,29 @@ decodeMazeFor gs perm = go 0 (makeUF (numCellsFor gs)) IS.empty 0
           in if merged
                then go (added + 1) uf' (IS.insert e edgeSet) (idx + 1)
                else go added uf' edgeSet (idx + 1)
+
+-- ---------------------------------------------------------------------------
+-- Cell degrees (parameterized)
+-- ---------------------------------------------------------------------------
+
+-- | Compute the degree (number of passages) of each cell in a decoded maze.
+-- Returns a vector indexed by cell ID.
+cellDegreesFor :: Int -> IS.IntSet -> VU.Vector Int
+cellDegreesFor gs treeEdges' = runST $ do
+  degs <- VUM.replicate nc (0 :: Int)
+  let go !idx
+        | idx >= ne = return ()
+        | IS.member idx treeEdges' =
+            let (a, b) = edgeCellsFor gs idx
+            in do VUM.modify degs (+1) a
+                  VUM.modify degs (+1) b
+                  go (idx + 1)
+        | otherwise = go (idx + 1)
+  go 0
+  VU.unsafeFreeze degs
+  where
+    nc = numCellsFor gs
+    ne = numEdgesFor gs
 
 -- ---------------------------------------------------------------------------
 -- BFS shortest path (parameterized)
