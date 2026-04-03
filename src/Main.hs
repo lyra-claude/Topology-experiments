@@ -121,20 +121,142 @@ randomRegular n d seed =
   in addExtras base
 
 -- ---------------------------------------------------------------------------
+-- Directed topology builders (n=8, m=16 directed edges each)
+-- Used for density-cycle confound experiment: constant density, varying
+-- simple directed cycle count.
+-- Adjacency list interpretation: topo V.! j = in-neighbors of j
+-- (i.e., islands that send migrants TO island j).
+-- ---------------------------------------------------------------------------
+
+-- | DAG-Layer: layered {0,1} -> {2,3,4} -> {5,6,7}, plus 0->1.
+-- 0 directed cycles.
+dagLayer :: Topology
+dagLayer = V.fromList [ []
+                      , [0]
+                      , [0, 1]
+                      , [0, 1]
+                      , [0, 1]
+                      , [2, 3, 4]
+                      , [2, 3, 4]
+                      , [2, 3, 4]
+                      ]
+
+-- | DAG-Wide: node 0 broadcasts to all, layered fan-out.
+-- 0 directed cycles.
+dagWide :: Topology
+dagWide = V.fromList [ []
+                     , [0]
+                     , [0]
+                     , [0]
+                     , [0]
+                     , [0, 1, 2, 3]
+                     , [0, 1, 2, 3, 4]
+                     , [0, 4, 5]
+                     ]
+
+-- | LowCyc-1: DAG-Layer with one feedback edge (5->0).
+-- Creates cycle 0->2->5->0. 3 directed cycles.
+lowcyc1 :: Topology
+lowcyc1 = V.fromList [ [5]
+                      , []
+                      , [0, 1]
+                      , [0, 1]
+                      , [0, 1]
+                      , [2, 3, 4]
+                      , [2, 3, 4]
+                      , [2, 3, 4]
+                      ]
+
+-- | Bidirectional ring: forward and backward directed rings.
+-- 10 directed cycles.
+bidirRing :: Topology
+bidirRing = V.fromList [ [1, 7]
+                       , [0, 2]
+                       , [1, 3]
+                       , [2, 4]
+                       , [3, 5]
+                       , [4, 6]
+                       , [5, 7]
+                       , [0, 6]
+                       ]
+
+-- | Two disconnected directed 4-cliques (ring + cross-chords each).
+-- 14 directed cycles.
+twoCliques :: Topology
+twoCliques = V.fromList [ [2, 3]
+                         , [0, 3]
+                         , [0, 1]
+                         , [1, 2]
+                         , [6, 7]
+                         , [4, 7]
+                         , [4, 5]
+                         , [5, 6]
+                         ]
+
+-- | 2x4 mesh with vertical bidirectional edges and horizontal wrap-around.
+-- 20 directed cycles.
+meshCyclic :: Topology
+meshCyclic = V.fromList [ [3, 4]
+                        , [0, 5]
+                        , [1, 6]
+                        , [2, 7]
+                        , [0, 7]
+                        , [1, 4]
+                        , [2, 5]
+                        , [3, 6]
+                        ]
+
+-- | Overlapping directed triangles: 0->1->2->0, 2->3->4->2, 4->5->6->4,
+-- 6->7->0->6, plus skip chain 1->3->5->7->1.
+-- 29 directed cycles.
+denseTriangles :: Topology
+denseTriangles = V.fromList [ [2, 7]
+                            , [0, 7]
+                            , [1, 4]
+                            , [1, 2]
+                            , [3, 6]
+                            , [3, 4]
+                            , [0, 5]
+                            , [5, 6]
+                            ]
+
+-- | Ring + skip-2 ring: i->i+1 and i->i+2 (mod 8).
+-- 47 directed cycles (maximum for n=8, m=16).
+ringSkip2 :: Topology
+ringSkip2 = V.fromList [ [6, 7]
+                        , [0, 7]
+                        , [0, 1]
+                        , [1, 2]
+                        , [2, 3]
+                        , [3, 4]
+                        , [4, 5]
+                        , [5, 6]
+                        ]
+
+-- ---------------------------------------------------------------------------
 -- Topology lookup
 -- ---------------------------------------------------------------------------
 
 buildTopology :: String -> Int -> Topology
 buildTopology name n = case name of
-  "disconnected"    -> disconnected n
-  "ring"            -> ring n
-  "star"            -> star n
-  "complete"        -> complete n
-  "hypercube"       -> hypercube 3  -- k=3 for 8 islands
-  "barbell"         -> barbell n
-  "watts-strogatz"  -> wattsStrogatz n 4 0.3 42
-  "random-regular"  -> randomRegular n 3 42
-  _                 -> error $ "Unknown topology: " ++ name
+  "disconnected"      -> disconnected n
+  "ring"              -> ring n
+  "star"              -> star n
+  "complete"          -> complete n
+  "hypercube"         -> hypercube 3  -- k=3 for 8 islands
+  "barbell"           -> barbell n
+  "watts-strogatz"    -> wattsStrogatz n 4 0.3 42
+  "random-regular"    -> randomRegular n 3 42
+  -- Directed topologies (n=8, m=16, varying cycle count)
+  "dag-layer"         -> dagLayer
+  "dag-wide"          -> dagWide
+  "lowcyc-1"          -> lowcyc1
+  "bidir-ring"        -> bidirRing
+  "two-cliques"       -> twoCliques
+  "mesh-cyclic"       -> meshCyclic
+  "dense-triangles"   -> denseTriangles
+  "ring-skip2"        -> ringSkip2
+  _                   -> error $ "Unknown topology: " ++ name
 
 -- ---------------------------------------------------------------------------
 -- Run and print stats
@@ -221,6 +343,7 @@ main = do
       hPutStrLn stderr "  --grid N    Grid size for maze domain (default: 15, options: 8, 15)"
       hPutStrLn stderr ""
       hPutStrLn stderr "Topologies: disconnected, ring, star, complete, hypercube, barbell, watts-strogatz, random-regular"
+      hPutStrLn stderr "Directed:   dag-layer, dag-wide, lowcyc-1, bidir-ring, two-cliques, mesh-cyclic, dense-triangles, ring-skip2"
       hPutStrLn stderr ""
       hPutStrLn stderr "Examples:"
       hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42                        # 15x15 maze (default)"
