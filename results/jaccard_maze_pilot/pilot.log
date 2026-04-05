@@ -1,0 +1,60 @@
+=== Jaccard Maze Pilot ===
+Topologies: disconnected ring star complete hypercube barbell watts-strogatz random-regular
+Seeds: 42 137 2025
+Total runs: 24
+
+[1/24] disconnected seed=42 -> results/jaccard_maze_pilot/disconnected_seed42.csv
+[2/24] disconnected seed=137 -> results/jaccard_maze_pilot/disconnected_seed137.csv
+[3/24] disconnected seed=2025 -> results/jaccard_maze_pilot/disconnected_seed2025.csv
+[4/24] ring seed=42 -> results/jaccard_maze_pilot/ring_seed42.csv
+[5/24] ring seed=137 -> results/jaccard_maze_pilot/ring_seed137.csv
+[6/24] ring seed=2025 -> results/jaccard_maze_pilot/ring_seed2025.csv
+[7/24] star seed=42 -> results/jaccard_maze_pilot/star_seed42.csv
+[8/24] star seed=137 -> results/jaccard_maze_pilot/star_seed137.csv
+[9/24] star seed=2025 -> results/jaccard_maze_pilot/star_seed2025.csv
+[10/24] complete seed=42 -> results/jaccard_maze_pilot/complete_seed42.csv
+[11/24] complete seed=137 -> results/jaccard_maze_pilot/complete_seed137.csv
+[12/24] complete seed=2025 -> results/jaccard_maze_pilot/complete_seed2025.csv
+[13/24] hypercube seed=42 -> results/jaccard_maze_pilot/hypercube_seed42.csv
+[14/24] hypercube seed=137 -> results/jaccard_maze_pilot/hypercube_seed137.csv
+[15/24] hypercube seed=2025 -> results/jaccard_maze_pilot/hypercube_seed2025.csv
+[16/24] barbell seed=42 -> results/jaccard_maze_pilot/barbell_seed42.csv
+[17/24] barbell seed=137 -> results/jaccard_maze_pilot/barbell_seed137.csv
+[18/24] barbell seed=2025 -> results/jaccard_maze_pilot/barbell_seed2025.csv
+[19/24] watts-strogatz seed=42 -> results/jaccard_maze_pilot/watts-strogatz_seed42.csv
+[20/24] watts-strogatz seed=137 -> results/jaccard_maze_pilot/watts-strogatz_seed137.csv
+[21/24] watts-strogatz seed=2025 -> results/jaccard_maze_pilot/watts-strogatz_seed2025.csv
+[22/24] random-regular seed=42 -> results/jaccard_maze_pilot/random-regular_seed42.csv
+[23/24] random-regular seed=137 -> results/jaccard_maze_pilot/random-regular_seed137.csv
+[24/24] random-regular seed=2025 -> results/jaccard_maze_pilot/random-regular_seed2025.csv
+
+=== All 24 runs complete ===
+Results in results/jaccard_maze_pilot/
+total 108
+drwxrwxr-x 2 lyra lyra 4096 Apr  5 00:58 .
+drwxrwxr-x 3 lyra lyra 4096 Apr  5 00:40 ..
+-rw-rw-r-- 1 lyra lyra 3103 Apr  5 00:55 barbell_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3131 Apr  5 00:55 barbell_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3103 Apr  5 00:54 barbell_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3122 Apr  5 00:51 complete_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3190 Apr  5 00:51 complete_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3130 Apr  5 00:50 complete_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3145 Apr  5 00:46 disconnected_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3118 Apr  5 00:47 disconnected_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3136 Apr  5 00:45 disconnected_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3138 Apr  5 00:53 hypercube_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3101 Apr  5 00:53 hypercube_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3138 Apr  5 00:52 hypercube_seed42.csv
+-rw-rw-r-- 1 lyra lyra 2110 Apr  5 00:59 pilot.log
+-rw-rw-r-- 1 lyra lyra 3099 Apr  5 00:58 random-regular_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3080 Apr  5 00:59 random-regular_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3079 Apr  5 00:58 random-regular_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3097 Apr  5 00:48 ring_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3093 Apr  5 00:48 ring_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3094 Apr  5 00:47 ring_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3020 Apr  5 00:49 star_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3074 Apr  5 00:50 star_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3075 Apr  5 00:49 star_seed42.csv
+-rw-rw-r-- 1 lyra lyra 3092 Apr  5 00:56 watts-strogatz_seed137.csv
+-rw-rw-r-- 1 lyra lyra 3079 Apr  5 00:57 watts-strogatz_seed2025.csv
+-rw-rw-r-- 1 lyra lyra 3084 Apr  5 00:56 watts-strogatz_seed42.csv
