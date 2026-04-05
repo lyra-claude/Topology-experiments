@@ -1,0 +1,108 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{alba2002parallel}
+Alba, E., Tomassini, M.: Parallelism and evolutionary algorithms. IEEE
+  Transactions on Evolutionary Computation  \textbf{6}(5),  443--462 (2002).
+  \doi{10.1109/TEVC.2002.800880}
+
+\bibitem{alba1999parallel}
+Alba, E., Troya, J.M.: A survey of parallel distributed genetic algorithms.
+  Complexity  \textbf{4}(4),  31--52 (1999)
+
+\bibitem{foster1988census}
+Bouwer, I.Z., Chernoff, W.W., Monson, B., Star, Z.: The Foster Census: {R. M.
+  Foster's} Census of Connected Symmetric Trivalent Graphs. Charles Babbage
+  Research Centre (1988)
+
+\bibitem{graphgrpo2026}
+Cang, Y., Zhang, X., Zhao, E., Ji, Z., Liu, Y., He, Y., Ning, Z., Chen, Y.,
+  Que, W., Shi, L.: {Graph-GRPO}: Stabilizing multi-agent topology learning via
+  group relative policy optimization. arXiv preprint arXiv:2603.02701  (2026)
+
+\bibitem{goagent2026}
+Chen, H., Zheng, X., Liu, Y., Jiao, P., Li, S., Liu, H., Zhao, Z., Xu, Z.,
+  Khalil, I., Pan, S.: {GoAgent}: Group-of-agents communication topology
+  generation for {LLM}-based multi-agent systems. arXiv preprint
+  arXiv:2603.19677  (2026)
+
+\bibitem{puppeteer2025}
+Dang, Y., Qian, C., Luo, X., Fan, J., Xie, Z., Shi, R., Chen, W., Yang, C.,
+  Che, X., Tian, Y., Xiong, X., Han, L., Liu, Z., Sun, M.: Multi-agent
+  collaboration via evolving orchestration. In: Advances in Neural Information
+  Processing Systems (NeurIPS) (2025)
+
+\bibitem{dochkina2026}
+Dochkina, V.: Drop the hierarchy and roles: How self-organizing {LLM} agents
+  outperform designed structures. arXiv preprint arXiv:2603.28990  (2026)
+
+\bibitem{bigmas2026}
+Hao, G., Dai, Y., Qin, X., Yu, S.: Brain-inspired graph multi-agent systems for
+  {LLM} reasoning. arXiv preprint arXiv:2603.15371  (2026)
+
+\bibitem{hatcher2002algebraic}
+Hatcher, A.: Algebraic Topology. Cambridge University Press (2002)
+
+\bibitem{johnson1975finding}
+Johnson, D.B.: Finding all the elementary circuits of a directed graph. SIAM
+  Journal on Computing  \textbf{4}(1),  77--84 (1975). \doi{10.1137/0204007}
+
+\bibitem{kauffman1993origins}
+Kauffman, S.A.: The Origins of Order: Self-Organization and Selection in
+  Evolution. Oxford University Press (1993)
+
+\bibitem{argdesigner2026}
+Li, S., Liu, Y., Wen, Q., Zhang, C., Pan, S.: Assemble your crew: Automatic
+  multi-agent communication topology design via autoregressive graph
+  generation. In: Proceedings of the AAAI Conference on Artificial Intelligence
+  (AAAI) (2026), oral presentation
+
+\bibitem{ofamas2026}
+Li, S., Liu, Y., Zheng, Y., Li, M., Nguyen, Q.V.H., Pan, S.: {OFA-MAS}:
+  One-for-all multi-agent system topology design based on mixture-of-experts
+  graph generative models. In: Proceedings of the ACM Web Conference (WWW).
+  Dubai, United Arab Emirates (2026)
+
+\bibitem{hera2026}
+Li, Z., Ramakrishnan, S.: {HERA}: Experience as a compass---hierarchical
+  evolution with recursive adaptation for multi-agent orchestration. arXiv
+  preprint arXiv:2604.00901  (2026)
+
+\bibitem{clocksystems2026}
+Lynch, O., Myers, D.J., Rischel, E.F., Staton, S.: Clock systems for stochastic
+  and non-deterministic categorical systems theories. arXiv preprint
+  arXiv:2603.29573  (2026)
+
+\bibitem{macnet2025}
+Qian, C., Zhuge, M., Luo, X., Yang, C., Liu, Z., Sun, M.: {MacNet}: Multi-agent
+  communication via orchestration within directed acyclic graphs. In:
+  Proceedings of the International Conference on Machine Learning (2025)
+
+\bibitem{cycrak2024}
+Shi, W., Fan, T., Xu, S., Yang, R., L{\"u}, L.: A universal optimization
+  framework based on cycle ranking for influence maximization in complex
+  networks. arXiv preprint arXiv:2405.09357  (2024)
+
+\bibitem{skolicki2005influence}
+Skolicki, Z., {De Jong}, K.: The influence of migration sizes and intervals on
+  island models. In: Proceedings of the 2005 Genetic and Evolutionary
+  Computation Conference (GECCO). pp. 1295--1302. ACM, Washington, DC, USA
+  (2005). \doi{10.1145/1068009.1068219}
+
+\bibitem{tomassini2005spatially}
+Tomassini, M.: Spatially Structured Evolutionary Algorithms. Springer (2005)
+
+\bibitem{agentconductor2026}
+Wang, S., Lu, R., Yang, Z., Wang, Y., Zhang, Y., Xu, L., Xu, Q., Yin, G., Chen,
+  C., Guan, X.: {AgentConductor}: Topology evolution for multi-agent
+  competition-level code generation. arXiv preprint arXiv:2602.17100  (2026)
+
+\bibitem{gdesigner2025}
+Zhang, G., Yue, Y., Sun, X., Wan, G., Yu, M., Fang, J., Wang, K., Chen, T.,
+  Cheng, D.: {G-Designer}: Architecting multi-agent communication topologies
+  via graph neural networks. In: Proceedings of the 42nd International
+  Conference on Machine Learning (ICML) (2025)
+
+\end{thebibliography}
