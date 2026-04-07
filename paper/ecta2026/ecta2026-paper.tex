@@ -394,11 +394,10 @@ The implications for MAS design are immediate. The systems in
 Table~\ref{tab:confound} concluded DAGs outperform, but by
 Theorem~\ref{thm:confound} their experiments compared sparse to dense. The
 correct conclusion is that \emph{sparser communication is cheaper}, not that
-cycles are harmful. Abbott et al.~\cite{abbott2025streamability} formalise the
-cost side: DAGs are streamable (linear execution), while cycles require fixpoint
-iteration. Our experiments quantify the \emph{benefit} side---sustained
-diversity on rugged landscapes---completing a cost-benefit framework for
-topology choice.
+cycles are harmful. On the cost side, cycles do impose overhead: iterative
+message-passing until convergence, rather than the single-pass execution of
+DAGs. Our experiments quantify the \emph{benefit} side---sustained diversity on
+rugged landscapes---completing a cost-benefit framework for topology choice.
 
 Figure~\ref{fig:foster} illustrates the confound concretely. We ran the
 same island model GA on 13 cubic symmetric graphs from the Foster
