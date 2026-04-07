@@ -50,7 +50,11 @@ speed~\cite{tomassini2005spatially,alba1999parallel}. Ring topologies maintain
 diversity longer than complete graphs; sparse topologies slow premature
 convergence~\cite{alba2002parallel,skolicki2005influence}. The open question is
 not \emph{whether} topology matters but \emph{which topological property} is
-operative.
+operative. Yang et al.~\cite{yang2025topology} identify topology as the single
+most underexplored dimension of MAS design, proposing nine research directions;
+a recent survey formalises agent coordination as graph
+computation~\cite{graphsaiagents2025}. Neither, however, identifies the
+algebraic confound we expose below.
 
 Recent LLM-based multi-agent systems (MAS) have intensified this question.
 Seven major systems---GoAgent~\cite{goagent2026},
@@ -58,9 +62,11 @@ AgentConductor~\cite{agentconductor2026}, Graph-GRPO~\cite{graphgrpo2026},
 OFA-MAS~\cite{ofamas2026}, G-Designer~\cite{gdesigner2025},
 ARG-Designer~\cite{argdesigner2026}, and Dochkina et
 al.~\cite{dochkina2026}---enforce or recommend DAG communication topologies.
-Against this consensus, BIGMAS~\cite{bigmas2026} permits cycles and
-Puppeteer~\cite{puppeteer2025} discovers cyclic structures under optimization
-pressure. The field is split, with no shared framework to adjudicate.
+Against this consensus, BIGMAS~\cite{bigmas2026} permits cycles,
+Agent~Q-Mix~\cite{agentqmix2026} learns communication actions that create
+2-cycles, and Puppeteer~\cite{puppeteer2025} discovers cyclic structures under
+optimization pressure. The field is split, with no shared framework to
+adjudicate.
 
 The reason is algebraic. For any connected graph~$G$ with $n$ vertices and $m$
 edges, the cycle rank $\beta_1(G) = m - n + 1$~\cite{hatcher2002algebraic}:
@@ -388,7 +394,11 @@ The implications for MAS design are immediate. The systems in
 Table~\ref{tab:confound} concluded DAGs outperform, but by
 Theorem~\ref{thm:confound} their experiments compared sparse to dense. The
 correct conclusion is that \emph{sparser communication is cheaper}, not that
-cycles are harmful.
+cycles are harmful. Abbott et al.~\cite{abbott2025streamability} formalise the
+cost side: DAGs are streamable (linear execution), while cycles require fixpoint
+iteration. Our experiments quantify the \emph{benefit} side---sustained
+diversity on rugged landscapes---completing a cost-benefit framework for
+topology choice.
 
 Figure~\ref{fig:foster} illustrates the confound concretely. We ran the
 same island model GA on 13 cubic symmetric graphs from the Foster
@@ -439,7 +449,10 @@ Theorem~\ref{thm:confound}, their evidence is exactly the confound our
 experiment resolves. HERA~\cite{hera2026} is the first system to explicitly
 track cycle count during topology evolution, converging to ``compact chains
 with strategically preserved cycles''---intermediate $\kappa$ under optimization
-pressure. Our theorem explains why this works.
+pressure. Agent~Q-Mix~\cite{agentqmix2026} learns six communication actions
+via QMIX, including a \texttt{debate\_check} action that creates directed
+2-cycles; it is the most topology-aware RL-based system to date.
+Our theorem explains why intermediate cycle counts work.
 
 \paragraph{Large-scale studies.}
 Lynch et al.~\cite{clocksystems2026} show that graph-parameterised
@@ -468,7 +481,8 @@ by $(n, m)$. Across 240 runs at constant density, $\kappa$ predicts diversity
 transient on OneMax but a $14\times$ amplification at NK $K = 6$ confirms
 scaling with landscape difficulty. Future work should pursue full-factorial NK
 experiments, $\kappa$--capability interaction, and $\kappa$ as a practical
-topology design heuristic.
+topology design heuristic---precisely the directions called for by recent
+position papers~\cite{yang2025topology}.
 
 %% ===================================================================
 \bibliographystyle{splncs04}
