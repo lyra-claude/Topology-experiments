@@ -122,6 +122,45 @@ randomRegular n d seed =
   in addExtras base
 
 -- ---------------------------------------------------------------------------
+-- Bridge experiment: iso-spectral families with varying beta_1
+-- ---------------------------------------------------------------------------
+
+-- | Add an undirected edge (u,v) to an adjacency-list topology.
+addEdge :: Int -> Int -> Topology -> Topology
+addEdge u v topo =
+  topo V.// [ (u, v : (topo V.! u))
+            , (v, u : (topo V.! v))
+            ]
+
+-- Family 1: lambda_2 = 0.5858 (cycle-based, chords between equal-Fiedler vertices)
+
+-- | Ring + 1 chord: C_8 with edge (0,4). beta_1=2, lambda_2=0.5858.
+ringChord1 :: Topology
+ringChord1 = addEdge 0 4 (ring 8)
+
+-- | Ring + 2 chords: C_8 with edges (0,4),(1,3). beta_1=3, lambda_2=0.5858.
+ringChord2 :: Topology
+ringChord2 = addEdge 1 3 (addEdge 0 4 (ring 8))
+
+-- | Ring + 3 chords: C_8 with edges (0,4),(1,3),(5,7). beta_1=4, lambda_2=0.5858.
+ringChord3 :: Topology
+ringChord3 = addEdge 5 7 (addEdge 1 3 (addEdge 0 4 (ring 8)))
+
+-- Family 2: lambda_2 = 1.0 (star-based, leaf-leaf edges)
+
+-- | Star + 1 leaf edge: S_8 with edge (1,2). beta_1=1, lambda_2=1.0.
+starLeaf1 :: Topology
+starLeaf1 = addEdge 1 2 (star 8)
+
+-- | Star + 2 leaf edges: S_8 with edges (1,2),(3,4). beta_1=2, lambda_2=1.0.
+starLeaf2 :: Topology
+starLeaf2 = addEdge 3 4 (addEdge 1 2 (star 8))
+
+-- | Star + 3 leaf edges: S_8 with edges (1,2),(3,4),(5,6). beta_1=3, lambda_2=1.0.
+starLeaf3 :: Topology
+starLeaf3 = addEdge 5 6 (addEdge 3 4 (addEdge 1 2 (star 8)))
+
+-- ---------------------------------------------------------------------------
 -- Directed topology builders (n=8, m=16 directed edges each)
 -- Used for density-cycle confound experiment: constant density, varying
 -- simple directed cycle count.
@@ -555,6 +594,13 @@ buildTopology name n = case name of
   "f26a"            -> fosterF26A
   "coxeter"         -> fosterCoxeter
   "tutte-coxeter"   -> fosterTutteCoxeter
+  -- Bridge experiment: iso-spectral families (fixed topology, n=8)
+  "ring-chord1"       -> ringChord1
+  "ring-chord2"       -> ringChord2
+  "ring-chord3"       -> ringChord3
+  "star-leaf1"        -> starLeaf1
+  "star-leaf2"        -> starLeaf2
+  "star-leaf3"        -> starLeaf3
   -- Directed topologies (n=8, m=16, varying cycle count)
   "dag-layer"         -> dagLayer
   "dag-wide"          -> dagWide
