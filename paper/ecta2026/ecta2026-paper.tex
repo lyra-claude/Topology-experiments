@@ -193,7 +193,7 @@ ARG-Designer~\cite{argdesigner2026}
   & Autoregressive DAG generation
   & DAG constraint baked into generative model \\
 Dochkina et al.~\cite{dochkina2026}
-  & Sparse beats dense; capability moderates
+  & 44\% quality spread ($d{=}1.86$); capability moderates
   & Sparsity and acyclicity confounded in all 25K runs \\
 \bottomrule
 \end{tabular}}
@@ -464,9 +464,13 @@ Our theorem explains why intermediate cycle counts work.
 Lynch et al.~\cite{clocksystems2026} show that graph-parameterised
 clock systems constrain representable behaviours to paths in~$G$: DAGs
 permit only acyclic execution. Dochkina et al.~\cite{dochkina2026}
-(25K+ runs) find sparse/acyclic outperforms dense/cyclic with
-capability-moderated crossover. By Theorem~\ref{thm:confound}, this is
-a density comparison; our experiment provides the controlled condition.
+conduct the largest controlled topology study to date: 25,000 tasks,
+256 agents, and 8 coordination protocols yield a 44\% quality spread
+(Cohen's $d = 1.86$), demonstrating that topology choice is the
+dominant performance lever at industrial scale. However, sparsity and
+acyclicity are confounded in all runs; by Theorem~\ref{thm:confound},
+this is a density comparison. Our experiment provides the controlled
+condition their design lacks.
 
 \paragraph{Cycle structure.}
 CycRak~\cite{cycrak2024} shows short-cycle centrality outperforms eigenvector
