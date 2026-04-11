@@ -467,10 +467,21 @@ permit only acyclic execution. Dochkina et al.~\cite{dochkina2026}
 conduct the largest controlled topology study to date: 25,000 tasks,
 256 agents, and 8 coordination protocols yield a 44\% quality spread
 (Cohen's $d = 1.86$), demonstrating that topology choice is the
-dominant performance lever at industrial scale. However, sparsity and
+dominant performance lever at industrial scale. Crucially, the effect
+is capability-moderated: weaker models benefit most from DAG
+structure, while stronger models exploit cyclic communication
+patterns---suggesting a Goldilocks interaction between agent
+capability and cycle count. However, sparsity and
 acyclicity are confounded in all runs; by Theorem~\ref{thm:confound},
 this is a density comparison. Our experiment provides the controlled
 condition their design lacks.
+Wang et al.~\cite{wang2026kregular} find that $K$-regular graphs
+maximise coordination quality, with a minimum capability threshold
+$\beta_{\min} \sim 1/K$: higher connectivity substitutes for
+individual agent intelligence. This highlights a
+coordination--exploration duality---density aids coordination but, as
+our experiments show, suppresses diversity-mediated exploration. The
+intersection defines an optimal topology that balances both.
 
 \paragraph{Cycle structure.}
 CycRak~\cite{cycrak2024} shows short-cycle centrality outperforms eigenvector
