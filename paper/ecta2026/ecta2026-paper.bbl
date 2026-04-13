@@ -105,4 +105,33 @@ Zhang, G., Yue, Y., Sun, X., Wan, G., Yu, M., Fang, J., Wang, K., Chen, T.,
   via graph neural networks. In: Proceedings of the 42nd International
   Conference on Machine Learning (ICML) (2025)
 
+\bibitem{yang2025topology}
+Yang, J., Zhang, M., Jin, Y., Chen, H., Wen, Q., Lin, L., He, Y., Kumar, S.,
+  Xu, W., Evans, J., Wang, J.: Topological structure learning should be a
+  research priority for {LLM}-based multi-agent systems. arXiv preprint
+  arXiv:2505.22467  (2025)
+
+\bibitem{graphsaiagents2025}
+Bei, Y., Zhang, W., Wang, S., Chen, W., Zhou, S., Chen, H., Li, Y., Bu, J.,
+  Pan, S., Yu, Y., King, I., Karray, F., Yu, P.S.: Graphs meet {AI} agents:
+  Taxonomy, progress, and future opportunities. arXiv preprint
+  arXiv:2506.18019  (2025)
+
+\bibitem{agentqmix2026}
+Jiang, E.H., Li, L., Sun, R., Liang, X., Li, Y., Wu, Y., Luo, H., Li, H.,
+  Zhang, Z., Kang, Z., Chang, K.W., Wu, Y.N.: Agent {Q-Mix}: Selecting the
+  right action for {LLM} multi-agent systems through reinforcement learning.
+  arXiv preprint arXiv:2604.00344  (2026)
+
+\bibitem{wang2026kregular}
+Wang, Z., Chen, H., Yang, J., Zhang, M., Wen, Q., Wang, J.: On the role of
+  communication topology in multi-agent {LLM} systems: {K}-regular graphs
+  maximize coordination. arXiv preprint arXiv:2604.07751  (2026)
+
+\bibitem{zhou2025mass}
+Zhou, H., Wan, X., Sun, R., Palangi, H., Iqbal, S., Vuli{\'c}, I., Korhonen, A.,
+  Ar{\i}k, S.{\"O}.: Multi-agent design: Optimizing agents with better prompts
+  and topologies. In: Proceedings of the International Conference on Learning
+  Representations (ICLR) (2026)
+
 \end{thebibliography}

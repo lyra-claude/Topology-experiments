@@ -460,6 +460,19 @@ via QMIX, including a \texttt{debate\_check} action that creates directed
 2-cycles; it is the most topology-aware RL-based system to date.
 Our theorem explains why intermediate cycle counts work.
 
+\paragraph{Joint prompt--topology optimization.}
+MASS~\cite{zhou2025mass} is the closest predecessor: it jointly optimizes
+prompts and topologies for multi-agent systems via a three-stage pipeline
+(block-level prompts, workflow topology, workflow-level prompts). However,
+MASS restricts its topology search to DAGs, and its central finding---that
+``prompts matter more than topology''---may be an artifact of this
+restriction. By Theorem~\ref{thm:confound}, varying DAG structure at
+constant node count simultaneously varies density. With cycles excluded from
+the search space, the dominant topological variable ($\kappa$) is held at
+zero, artificially suppressing topology's explanatory power. Our experiments
+show that when $\kappa$ is allowed to vary at constant density, topology
+explains up to 69\% of diversity variance on rugged landscapes.
+
 \paragraph{Large-scale studies.}
 Lynch et al.~\cite{clocksystems2026} show that graph-parameterised
 clock systems constrain representable behaviours to paths in~$G$: DAGs
