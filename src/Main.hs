@@ -161,6 +161,39 @@ starLeaf3 :: Topology
 starLeaf3 = addEdge 5 6 (addEdge 3 4 (addEdge 1 2 (star 8)))
 
 -- ---------------------------------------------------------------------------
+-- Cycle-length experiment: two-cycle-bridge graphs, all beta_1=2
+-- Two cycles of length n1, n2 sharing a single bridge edge (node 0 -- node n1).
+-- ---------------------------------------------------------------------------
+
+-- | Build a two-cycle bridge graph: cycle of n1 nodes (0..n1-1),
+-- cycle of n2 nodes (n1..n1+n2-1), bridge edge between 0 and n1.
+twoCycleBridge :: Int -> Int -> Topology
+twoCycleBridge n1 n2 =
+  let totalN = n1 + n2
+      -- Cycle 1: nodes 0..n1-1
+      cycle1 i = [(i - 1) `mod` n1, (i + 1) `mod` n1]
+      -- Cycle 2: nodes n1..n1+n2-1
+      cycle2 i =
+        let local = i - n1
+        in [n1 + ((local - 1) `mod` n2), n1 + ((local + 1) `mod` n2)]
+      base = V.generate totalN (\i ->
+        if i < n1 then cycle1 i else cycle2 i)
+      -- Add bridge edge 0 <-> n1
+  in addEdge 0 n1 base
+
+-- | G1: two 3-cycles with bridge. beta_1=2, mean_cycle=3.0, n=6, lambda_2=0.4384
+cycleBridge33 :: Topology
+cycleBridge33 = twoCycleBridge 3 3
+
+-- | G2: 3-cycle + 9-cycle with bridge. beta_1=2, mean_cycle=6.0, n=12, lambda_2=0.1907
+cycleBridge39 :: Topology
+cycleBridge39 = twoCycleBridge 3 9
+
+-- | G3: two 9-cycles with bridge. beta_1=2, mean_cycle=9.0, n=18, lambda_2=0.0822
+cycleBridge99 :: Topology
+cycleBridge99 = twoCycleBridge 9 9
+
+-- ---------------------------------------------------------------------------
 -- Directed topology builders (n=8, m=16 directed edges each)
 -- Used for density-cycle confound experiment: constant density, varying
 -- simple directed cycle count.
@@ -601,6 +634,10 @@ buildTopology name n = case name of
   "star-leaf1"        -> starLeaf1
   "star-leaf2"        -> starLeaf2
   "star-leaf3"        -> starLeaf3
+  -- Cycle-length experiment: two-cycle-bridge graphs (fixed topology)
+  "cycle-bridge-3-3"  -> cycleBridge33
+  "cycle-bridge-3-9"  -> cycleBridge39
+  "cycle-bridge-9-9"  -> cycleBridge99
   -- Directed topologies (n=8, m=16, varying cycle count)
   "dag-layer"         -> dagLayer
   "dag-wide"          -> dagWide
