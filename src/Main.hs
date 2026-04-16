@@ -5,6 +5,7 @@ import Maze (Maze)    -- Domain instance for 15x15 Maze
 import Maze8 (Maze8)  -- Domain instance for 8x8 Maze
 import OneMax (OneMax) -- Domain instance for OneMax
 import NKLandscape (NK0Individual, NK2Individual, NK4Individual, NK6Individual)
+import SudokuSolver (SudokuIndividual)
 import Domain (Domain(..))
 
 import qualified Data.Vector as V
@@ -408,8 +409,13 @@ main = do
               printStats stats
             gs -> do
               hPutStrLn stderr $ "Unsupported grid size: " ++ show gs ++ ". Use 8 or 15."
+        "sudoku" -> do
+          let stats = runSimulation (Proxy :: Proxy SudokuIndividual)
+                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+          printStats stats
         other -> do
-          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze', 'onemax', 'nk0', 'nk2', 'nk4', or 'nk6'."
+          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze', 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', or 'sudoku'."
 
       hPutStrLn stderr "Done."
 
@@ -417,7 +423,7 @@ main = do
       hPutStrLn stderr "Usage: topology-sim [--domain D] [--grid N] <topology-name> <num-islands> <pop-size> <migration-interval> <num-migrants> <total-generations> <seed>"
       hPutStrLn stderr ""
       hPutStrLn stderr "Options:"
-      hPutStrLn stderr "  --domain D  Domain: 'maze' (default), 'onemax', 'nk0', 'nk2', 'nk4', 'nk6'"
+      hPutStrLn stderr "  --domain D  Domain: 'maze' (default), 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', 'sudoku'"
       hPutStrLn stderr "  --grid N    Grid size for maze domain (default: 15, options: 8, 15)"
       hPutStrLn stderr ""
       hPutStrLn stderr "Topologies: disconnected, ring, star, complete, hypercube, barbell, watts-strogatz, random-regular"
