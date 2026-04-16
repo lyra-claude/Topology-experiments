@@ -1,0 +1,68 @@
+Build profile: -w ghc-9.6.7 -O1
+In order, the following will be built (use -v for more details):
+ - topology-experiments-0.1.0.0 (exe:topology-sim) (file src/Domain.hs changed)
+Preprocessing executable 'topology-sim' for topology-experiments-0.1.0.0...
+Building executable 'topology-sim' for topology-experiments-0.1.0.0...
+[ 1 of 10] Compiling Domain           ( src/Domain.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/Domain.o ) [Source file changed]
+[ 2 of 10] Compiling IslandGA         ( src/IslandGA.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/IslandGA.o ) [Domain changed]
+[ 3 of 10] Compiling NKLandscape      ( src/NKLandscape.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/NKLandscape.o ) [Domain changed]
+[ 4 of 10] Compiling OneMax           ( src/OneMax.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/OneMax.o ) [Domain changed]
+[ 5 of 10] Compiling SudokuSolver     ( src/SudokuSolver.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/SudokuSolver.o ) [Domain changed]
+[ 8 of 10] Compiling Maze8            ( src/Maze8.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/Maze8.o ) [Domain changed]
+[ 9 of 10] Compiling Maze             ( src/Maze.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/Maze.o ) [Domain changed]
+[10 of 10] Compiling Main             ( src/Main.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/Main.o ) [Domain changed]
+[ 4 of 11] Compiling OneMax           ( src/OneMax.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/OneMax.o ) [Source file changed]
+[10 of 11] Compiling Main             ( src/Main.hs, dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim-tmp/Main.o ) [OneMax changed]
+[11 of 11] Linking dist-newstyle/build/aarch64-linux/ghc-9.6.7/topology-experiments-0.1.0.0/x/topology-sim/build/topology-sim/topology-sim [Objects changed]
+generation,meanFitness,bestFitness,diversity
+0,0.27703125,0.53125,0.9946428571428573
+10,0.3078125,0.53125,0.9915178571428573
+20,0.309609375,0.5625,0.9910714285714286
+30,0.3125,0.59375,0.9919642857142857
+40,0.3146875,0.53125,0.9933035714285715
+50,0.310625,0.5,0.9933035714285714
+60,0.309453125,0.5,0.9883928571428571
+70,0.31453125,0.59375,0.9879464285714287
+80,0.303203125,0.5625,0.9897321428571425
+90,0.301328125,0.53125,0.986607142857143
+100,0.3,0.5,0.9897321428571427
+110,0.307265625,0.53125,0.9906249999999999
+120,0.3084375,0.53125,0.9906249999999999
+130,0.302109375,0.5625,0.9901785714285714
+140,0.2959375,0.5,0.9723214285714287
+150,0.30390625,0.53125,0.9776785714285714
+160,0.304921875,0.5625,0.9892857142857142
+170,0.301328125,0.53125,0.9928571428571427
+180,0.300234375,0.5625,0.9924107142857143
+190,0.311796875,0.53125,0.9883928571428573
+200,0.314765625,0.5625,0.9915178571428571
+210,0.31515625,0.53125,0.985714285714286
+220,0.30921875,0.53125,0.9825892857142856
+230,0.3109375,0.53125,0.9901785714285714
+240,0.306796875,0.5625,0.9897321428571428
+250,0.306015625,0.5,0.9910714285714286
+260,0.30359375,0.53125,0.9915178571428573
+270,0.3071875,0.46875,0.9866071428571427
+280,0.30109375,0.53125,0.9910714285714285
+290,0.311875,0.5,0.9910714285714288
+300,0.304375,0.53125,0.9910714285714286
+310,0.299375,0.53125,0.9857142857142855
+320,0.303515625,0.5625,0.9924107142857144
+330,0.3021875,0.59375,0.9910714285714283
+340,0.315390625,0.59375,0.9919642857142857
+350,0.30109375,0.5625,0.9946428571428572
+360,0.311171875,0.53125,0.9866071428571429
+370,0.310546875,0.59375,0.9875
+380,0.30109375,0.53125,0.9861607142857141
+390,0.307421875,0.5625,0.9892857142857144
+400,0.30890625,0.53125,0.990625
+410,0.30515625,0.53125,0.9910714285714285
+420,0.307421875,0.53125,0.9883928571428573
+430,0.316171875,0.5625,0.9888392857142856
+440,0.30421875,0.5625,0.9888392857142858
+450,0.314765625,0.53125,0.9919642857142857
+460,0.311328125,0.59375,0.9924107142857143
+470,0.315625,0.53125,0.9879464285714287
+480,0.311796875,0.5625,0.9870535714285715
+490,0.309609375,0.53125,0.990625
+500,0.2996875,0.53125,0.9892857142857144
