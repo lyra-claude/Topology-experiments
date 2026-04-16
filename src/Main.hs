@@ -235,6 +235,59 @@ ringSkip2 = V.fromList [ [6, 7]
                         ]
 
 -- ---------------------------------------------------------------------------
+-- Interference experiment topologies (n=8, m=9, beta_1=2, kappa=2)
+-- Three directed graphs with SAME node count, edge count, cycle rank,
+-- and directed cycle count — but DIFFERENT cycle arrangements.
+-- Tests whether non-abelian holonomy (cactus group) causes interference.
+-- ---------------------------------------------------------------------------
+
+-- | Adjacent cycles (figure-eight): two directed cycles sharing vertex 0.
+-- Cycle A: 0->1->2->3->0 (length 4)
+-- Cycle B: 0->4->5->6->7->0 (length 5)
+-- Cycles share exactly one vertex (node 0).
+interferenceAdjacent :: Topology
+interferenceAdjacent = V.fromList [ [3, 7]   -- 0: receives from 3 and 7
+                                  , [0]      -- 1: receives from 0
+                                  , [1]      -- 2: receives from 1
+                                  , [2]      -- 3: receives from 2
+                                  , [0]      -- 4: receives from 0
+                                  , [4]      -- 5: receives from 4
+                                  , [5]      -- 6: receives from 5
+                                  , [6]      -- 7: receives from 6
+                                  ]
+
+-- | Separated cycles: two directed cycles connected by a path, no shared vertices.
+-- Cycle A: 0->1->2->0 (length 3, nodes {0,1,2})
+-- Path: 2->3->4 (bridge)
+-- Cycle B: 4->5->6->7->4 (length 4, nodes {4,5,6,7})
+-- Cycles share zero vertices.
+interferenceSeparated :: Topology
+interferenceSeparated = V.fromList [ [2]      -- 0: receives from 2
+                                   , [0]      -- 1: receives from 0
+                                   , [1]      -- 2: receives from 1
+                                   , [2]      -- 3: receives from 2
+                                   , [3, 7]   -- 4: receives from 3 and 7
+                                   , [4]      -- 5: receives from 4
+                                   , [5]      -- 6: receives from 5
+                                   , [6]      -- 7: receives from 6
+                                   ]
+
+-- | Nested cycles (concentric): one cycle inside another, sharing a path.
+-- Outer: 0->1->2->3->4->5->6->7->0 (length 8, the full ring)
+-- Shortcut: 0->4 (creates inner cycle 0->4->5->6->7->0, length 5)
+-- Cycles share the path 4->5->6->7->0 (4 edges, 5 vertices).
+interferenceNested :: Topology
+interferenceNested = V.fromList [ [7]      -- 0: receives from 7
+                                , [0]      -- 1: receives from 0
+                                , [1]      -- 2: receives from 1
+                                , [2]      -- 3: receives from 2
+                                , [3, 0]   -- 4: receives from 3 and 0
+                                , [4]      -- 5: receives from 4
+                                , [5]      -- 6: receives from 5
+                                , [6]      -- 7: receives from 6
+                                ]
+
+-- ---------------------------------------------------------------------------
 -- Topology lookup
 -- ---------------------------------------------------------------------------
 
@@ -257,6 +310,10 @@ buildTopology name n = case name of
   "mesh-cyclic"       -> meshCyclic
   "dense-triangles"   -> denseTriangles
   "ring-skip2"        -> ringSkip2
+  -- Interference experiment topologies (n=8, m=9, beta_1=2, kappa=2)
+  "interference-adjacent"  -> interferenceAdjacent
+  "interference-separated" -> interferenceSeparated
+  "interference-nested"    -> interferenceNested
   _                   -> error $ "Unknown topology: " ++ name
 
 -- ---------------------------------------------------------------------------
