@@ -78,3 +78,6 @@ instance Domain OneMax where
   distance (OneMax v1) (OneMax v2) =
     let diffs = VU.sum $ VU.zipWith (\a b -> if a /= b then (1 :: Int) else 0) v1 v2
     in fromIntegral diffs / fromIntegral genomeLength
+
+  -- | Export genome as list of ints for PCA analysis.
+  genomeToList (OneMax v) = VU.toList v

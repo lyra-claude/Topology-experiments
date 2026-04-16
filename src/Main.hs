@@ -1,6 +1,6 @@
 module Main where
 
-import IslandGA (Topology, Stats(..), runSimulation)
+import IslandGA (Topology, Stats(..), Checkpoint(..), runSimulation, runSimulationWithGenomes)
 import Maze (Maze)    -- Domain instance for 15x15 Maze
 import Maze8 (Maze8)  -- Domain instance for 8x8 Maze
 import OneMax (OneMax) -- Domain instance for OneMax
@@ -14,6 +14,8 @@ import System.Environment (getArgs)
 import System.Random (mkStdGen)
 import Data.Bits (xor, testBit, popCount)
 import System.IO (hFlush, stdout, hPutStrLn, stderr)
+import System.Directory (createDirectoryIfMissing)
+import Data.List (intercalate)
 
 -- ---------------------------------------------------------------------------
 -- Topology builders
@@ -121,6 +123,45 @@ randomRegular n d seed =
                                        , (target', i : (adj' V.! target'))
                                        ]
   in addExtras base
+
+-- ---------------------------------------------------------------------------
+-- Bridge experiment: iso-spectral families (constant lambda_2, varying beta_1)
+-- ---------------------------------------------------------------------------
+
+-- | Add an undirected edge between two nodes.
+addEdge :: Int -> Int -> Topology -> Topology
+addEdge u v topo =
+  topo V.// [ (u, v : (topo V.! u))
+            , (v, u : (topo V.! v))
+            ]
+
+-- Family 1: lambda_2 = 0.5858 (cycle-based, chords between equal-Fiedler vertices)
+
+-- | Ring + 1 chord: C_8 with edge (0,4). beta_1=2, lambda_2=0.5858.
+ringChord1 :: Topology
+ringChord1 = addEdge 0 4 (ring 8)
+
+-- | Ring + 2 chords: C_8 with edges (0,4),(1,3). beta_1=3, lambda_2=0.5858.
+ringChord2 :: Topology
+ringChord2 = addEdge 1 3 (addEdge 0 4 (ring 8))
+
+-- | Ring + 3 chords: C_8 with edges (0,4),(1,3),(5,7). beta_1=4, lambda_2=0.5858.
+ringChord3 :: Topology
+ringChord3 = addEdge 5 7 (addEdge 1 3 (addEdge 0 4 (ring 8)))
+
+-- Family 2: lambda_2 = 1.0 (star-based, leaf-leaf edges)
+
+-- | Star + 1 leaf edge: S_8 with edge (1,2). beta_1=1, lambda_2=1.0.
+starLeaf1 :: Topology
+starLeaf1 = addEdge 1 2 (star 8)
+
+-- | Star + 2 leaf edges: S_8 with edges (1,2),(3,4). beta_1=2, lambda_2=1.0.
+starLeaf2 :: Topology
+starLeaf2 = addEdge 3 4 (addEdge 1 2 (star 8))
+
+-- | Star + 3 leaf edges: S_8 with edges (1,2),(3,4),(5,6). beta_1=3, lambda_2=1.0.
+starLeaf3 :: Topology
+starLeaf3 = addEdge 5 6 (addEdge 3 4 (addEdge 1 2 (star 8)))
 
 -- ---------------------------------------------------------------------------
 -- Directed topology builders (n=8, m=16 directed edges each)
@@ -302,6 +343,13 @@ buildTopology name n = case name of
   "barbell"           -> barbell n
   "watts-strogatz"    -> wattsStrogatz n 4 0.3 42
   "random-regular"    -> randomRegular n 3 42
+  -- Bridge experiment topologies (iso-spectral families)
+  "ring-chord1"       -> ringChord1
+  "ring-chord2"       -> ringChord2
+  "ring-chord3"       -> ringChord3
+  "star-leaf1"        -> starLeaf1
+  "star-leaf2"        -> starLeaf2
+  "star-leaf3"        -> starLeaf3
   -- Directed topologies (n=8, m=16, varying cycle count)
   "dag-layer"         -> dagLayer
   "dag-wide"          -> dagWide
@@ -337,8 +385,8 @@ printStats stats = do
 -- ---------------------------------------------------------------------------
 
 data Config = Config
-  { cfgDomain       :: String   -- "maze" | "onemax"
-  , cfgGridSize     :: Int      -- only used for maze domain
+  { cfgDomain       :: String        -- "maze" | "onemax"
+  , cfgGridSize     :: Int           -- only used for maze domain
   , cfgTopology     :: String
   , cfgNumIslands   :: Int
   , cfgPopSize      :: Int
@@ -346,7 +394,61 @@ data Config = Config
   , cfgNumMigrants  :: Int
   , cfgTotalGens    :: Int
   , cfgSeed         :: Int
+  , cfgDumpGenomes  :: Maybe String  -- Nothing or Just directory path
   }
+
+-- ---------------------------------------------------------------------------
+-- Main
+-- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- Genome dump IO
+-- ---------------------------------------------------------------------------
+
+-- | Write genome data for one checkpoint to a CSV file.
+-- Each line is one individual's genome (comma-separated locus values).
+dumpGenomeFile :: FilePath -> Int -> V.Vector [Int] -> IO ()
+dumpGenomeFile dir gen genomes = do
+  let path = dir ++ "/gen_" ++ show gen ++ ".csv"
+  writeFile path $ unlines
+    [ intercalate "," (map show g)
+    | g <- V.toList genomes
+    , not (null g)  -- skip domains that don't support genome export
+    ]
+
+-- | Run simulation with genome dumps, writing both stats to stdout
+-- and genome CSVs to the dump directory.
+runAndDump :: Domain a => Proxy a -> Config -> Topology -> IO ()
+runAndDump proxy cfg topo = do
+  let gen = mkStdGen (cfgSeed cfg)
+  case cfgDumpGenomes cfg of
+    Nothing -> do
+      -- Standard mode: stats only
+      let stats = runSimulation proxy
+                    (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                    (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+      printStats stats
+    Just dumpDir -> do
+      -- Genome dump mode
+      let runDir = dumpDir ++ "/" ++ cfgTopology cfg ++ "_" ++ cfgDomain cfg
+                   ++ "_seed" ++ show (cfgSeed cfg)
+      createDirectoryIfMissing True runDir
+      hPutStrLn stderr $ "Genome dump directory: " ++ runDir
+      let checkpoints = runSimulationWithGenomes proxy
+                          (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
+                          (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
+      -- Print stats header
+      putStrLn "generation,meanFitness,bestFitness,diversity"
+      mapM_ (\cp -> do
+        let s = cpStats cp
+        putStrLn $ show (generation s)
+              ++ "," ++ show (meanFitness s)
+              ++ "," ++ show (bestFitness s)
+              ++ "," ++ show (diversity s)
+        hFlush stdout
+        -- Write genome file for this generation
+        dumpGenomeFile runDir (generation s) (cpGenomes cp)
+        ) checkpoints
 
 -- ---------------------------------------------------------------------------
 -- Main
@@ -357,8 +459,7 @@ main = do
   args <- getArgs
   case parseArgs args of
     Just cfg -> do
-      let gen  = mkStdGen (cfgSeed cfg)
-          topo = buildTopology (cfgTopology cfg) (cfgNumIslands cfg)
+      let topo = buildTopology (cfgTopology cfg) (cfgNumIslands cfg)
 
       hPutStrLn stderr $ "Running: " ++ cfgTopology cfg
                       ++ " | domain=" ++ cfgDomain cfg
@@ -368,82 +469,51 @@ main = do
                       ++ " | migrants=" ++ show (cfgNumMigrants cfg)
                       ++ " | gens=" ++ show (cfgTotalGens cfg)
                       ++ " | seed=" ++ show (cfgSeed cfg)
+                      ++ case cfgDumpGenomes cfg of
+                           Nothing -> ""
+                           Just d  -> " | dump-genomes=" ++ d
 
       case cfgDomain cfg of
-        "onemax" -> do
-          let stats = runSimulation (Proxy :: Proxy OneMax)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        "nk0" -> do
-          let stats = runSimulation (Proxy :: Proxy NK0Individual)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        "nk2" -> do
-          let stats = runSimulation (Proxy :: Proxy NK2Individual)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        "nk4" -> do
-          let stats = runSimulation (Proxy :: Proxy NK4Individual)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        "nk6" -> do
-          let stats = runSimulation (Proxy :: Proxy NK6Individual)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        "maze" ->
+        "onemax"  -> runAndDump (Proxy :: Proxy OneMax) cfg topo
+        "nk0"     -> runAndDump (Proxy :: Proxy NK0Individual) cfg topo
+        "nk2"     -> runAndDump (Proxy :: Proxy NK2Individual) cfg topo
+        "nk4"     -> runAndDump (Proxy :: Proxy NK4Individual) cfg topo
+        "nk6"     -> runAndDump (Proxy :: Proxy NK6Individual) cfg topo
+        "maze"    ->
           case cfgGridSize cfg of
-            8 -> do
-              let stats = runSimulation (Proxy :: Proxy Maze8)
-                            (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                            (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-              printStats stats
-            15 -> do
-              let stats = runSimulation (Proxy :: Proxy Maze)
-                            (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                            (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-              printStats stats
-            gs -> do
-              hPutStrLn stderr $ "Unsupported grid size: " ++ show gs ++ ". Use 8 or 15."
-        "sudoku" -> do
-          let stats = runSimulation (Proxy :: Proxy SudokuIndividual)
-                        (cfgPopSize cfg) (cfgMigInterval cfg) (cfgNumMigrants cfg)
-                        (cfgTotalGens cfg) topo (cfgNumIslands cfg) gen
-          printStats stats
-        other -> do
-          hPutStrLn stderr $ "Unknown domain: " ++ other ++ ". Use 'maze', 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', or 'sudoku'."
+            8  -> runAndDump (Proxy :: Proxy Maze8) cfg topo
+            15 -> runAndDump (Proxy :: Proxy Maze) cfg topo
+            gs -> hPutStrLn stderr $ "Unsupported grid size: " ++ show gs ++ ". Use 8 or 15."
+        "sudoku"  -> runAndDump (Proxy :: Proxy SudokuIndividual) cfg topo
+        other     -> hPutStrLn stderr $ "Unknown domain: " ++ other
+                       ++ ". Use 'maze', 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', or 'sudoku'."
 
       hPutStrLn stderr "Done."
 
     Nothing -> do
-      hPutStrLn stderr "Usage: topology-sim [--domain D] [--grid N] <topology-name> <num-islands> <pop-size> <migration-interval> <num-migrants> <total-generations> <seed>"
+      hPutStrLn stderr "Usage: topology-sim [OPTIONS] <topology> <islands> <pop> <mig-interval> <migrants> <gens> <seed>"
       hPutStrLn stderr ""
       hPutStrLn stderr "Options:"
-      hPutStrLn stderr "  --domain D  Domain: 'maze' (default), 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', 'sudoku'"
-      hPutStrLn stderr "  --grid N    Grid size for maze domain (default: 15, options: 8, 15)"
+      hPutStrLn stderr "  --domain D          Domain: 'maze' (default), 'onemax', 'nk0', 'nk2', 'nk4', 'nk6', 'sudoku'"
+      hPutStrLn stderr "  --grid N            Grid size for maze domain (default: 15, options: 8, 15)"
+      hPutStrLn stderr "  --dump-genomes DIR  Dump per-generation genome CSVs to DIR for PCA analysis"
       hPutStrLn stderr ""
       hPutStrLn stderr "Topologies: disconnected, ring, star, complete, hypercube, barbell, watts-strogatz, random-regular"
       hPutStrLn stderr "Directed:   dag-layer, dag-wide, lowcyc-1, bidir-ring, two-cliques, mesh-cyclic, dense-triangles, ring-skip2"
       hPutStrLn stderr ""
       hPutStrLn stderr "Examples:"
-      hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42                        # 15x15 maze (default)"
-      hPutStrLn stderr "  topology-sim --grid 8 ring 8 50 10 5 500 42               # 8x8 maze"
-      hPutStrLn stderr "  topology-sim --domain onemax ring 8 50 10 5 500 42        # OneMax"
-      hPutStrLn stderr "  topology-sim --domain onemax --grid 8 ring 8 50 10 5 500 42  # --grid ignored for onemax"
+      hPutStrLn stderr "  topology-sim ring 8 50 10 5 500 42"
+      hPutStrLn stderr "  topology-sim --domain nk4 ring 8 50 10 5 500 42"
+      hPutStrLn stderr "  topology-sim --domain nk4 --dump-genomes results/genomes/ ring 8 50 10 5 500 42"
 
 -- ---------------------------------------------------------------------------
 -- Argument parsing
 -- ---------------------------------------------------------------------------
 
--- | Parse command-line arguments, extracting optional --domain and --grid flags.
--- Flags can appear in any order before the positional arguments.
+-- | Parse command-line arguments, extracting optional flags.
 parseArgs :: [String] -> Maybe Config
 parseArgs args =
-  let (domain, grid, rest) = extractFlags args "maze" 15
+  let (domain, grid, dumpDir, rest) = extractFlags args "maze" 15 Nothing
   in case rest of
     [topoName, ni, ps, mi, nm, tg, sd] ->
       Just Config
@@ -456,14 +526,17 @@ parseArgs args =
         , cfgNumMigrants = read nm
         , cfgTotalGens   = read tg
         , cfgSeed        = read sd
+        , cfgDumpGenomes = dumpDir
         }
     _ -> Nothing
 
--- | Extract --domain and --grid flags from args, returning defaults for unset ones.
-extractFlags :: [String] -> String -> Int -> (String, Int, [String])
-extractFlags ("--domain" : d : rest) _defDomain defGrid =
-  extractFlags rest d defGrid
-extractFlags ("--grid" : g : rest) defDomain _defGrid =
-  extractFlags rest defDomain (read g)
-extractFlags rest defDomain defGrid =
-  (defDomain, defGrid, rest)
+-- | Extract flags from args, returning defaults for unset ones.
+extractFlags :: [String] -> String -> Int -> Maybe String -> (String, Int, Maybe String, [String])
+extractFlags ("--domain" : d : rest) _defDomain defGrid defDump =
+  extractFlags rest d defGrid defDump
+extractFlags ("--grid" : g : rest) defDomain _defGrid defDump =
+  extractFlags rest defDomain (read g) defDump
+extractFlags ("--dump-genomes" : d : rest) defDomain defGrid _defDump =
+  extractFlags rest defDomain defGrid (Just d)
+extractFlags rest defDomain defGrid defDump =
+  (defDomain, defGrid, defDump, rest)

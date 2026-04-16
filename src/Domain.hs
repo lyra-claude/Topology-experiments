@@ -24,3 +24,8 @@ class Domain a where
 
   -- | Pairwise distance for diversity measurement (normalized 0-1).
   distance :: a -> a -> Double
+
+  -- | Export genome as a list of integers (for genome dump / PCA analysis).
+  -- Default: empty list (domains that don't support dumping).
+  genomeToList :: a -> [Int]
+  genomeToList _ = []

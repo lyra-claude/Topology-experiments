@@ -128,6 +128,7 @@ instance Domain NK0Individual where
   mutate (NK0Individual v) g =
     let (v', g') = nkMutate v g in (NK0Individual v', g')
   distance (NK0Individual v1) (NK0Individual v2) = nkDistance v1 v2
+  genomeToList (NK0Individual v) = VU.toList v
 
 -- ---------------------------------------------------------------------------
 -- NK2 (K=2): moderate epistasis
@@ -147,6 +148,7 @@ instance Domain NK2Individual where
   mutate (NK2Individual v) g =
     let (v', g') = nkMutate v g in (NK2Individual v', g')
   distance (NK2Individual v1) (NK2Individual v2) = nkDistance v1 v2
+  genomeToList (NK2Individual v) = VU.toList v
 
 -- ---------------------------------------------------------------------------
 -- NK4 (K=4): high epistasis
@@ -166,6 +168,7 @@ instance Domain NK4Individual where
   mutate (NK4Individual v) g =
     let (v', g') = nkMutate v g in (NK4Individual v', g')
   distance (NK4Individual v1) (NK4Individual v2) = nkDistance v1 v2
+  genomeToList (NK4Individual v) = VU.toList v
 
 -- ---------------------------------------------------------------------------
 -- NK6 (K=6): very high epistasis
@@ -185,3 +188,4 @@ instance Domain NK6Individual where
   mutate (NK6Individual v) g =
     let (v', g') = nkMutate v g in (NK6Individual v', g')
   distance (NK6Individual v1) (NK6Individual v2) = nkDistance v1 v2
+  genomeToList (NK6Individual v) = VU.toList v

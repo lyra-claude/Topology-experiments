@@ -6,10 +6,12 @@ module IslandGA
   , Evaluated(..)
   , Topology
   , Stats(..)
+  , Checkpoint(..)
   , stepIsland
   , migrate
   , computeDiversity
   , runSimulation
+  , runSimulationWithGenomes
   ) where
 
 import Domain
@@ -278,3 +280,45 @@ buildPop !n g acc =
   let (ind, g') = randomIndividual g
       !evInd = evaluate ind
   in buildPop (n - 1) g' (V.snoc acc evInd)
+
+-- ---------------------------------------------------------------------------
+-- Checkpoint with genome data (for PCA spectrum analysis)
+-- ---------------------------------------------------------------------------
+
+-- | A checkpoint that includes full genome data for PCA analysis.
+data Checkpoint a = Checkpoint
+  { cpStats      :: !Stats
+  , cpGenomes    :: !(V.Vector [Int])  -- ^ All genomes as int lists
+  } deriving (Show)
+
+-- | Like runSimulation, but also returns genome data at each checkpoint.
+-- Uses genomeToList from the Domain typeclass.
+runSimulationWithGenomes
+  :: forall a. Domain a
+  => Proxy a -> Int -> Int -> Int -> Int -> Topology -> Int -> StdGen
+  -> [Checkpoint a]
+runSimulationWithGenomes _ popSize migInterval nMigrants totalGens topo numIslands gen0 =
+  let (islands0, genInit) = initIslands numIslands popSize gen0
+
+      extractGenomes :: V.Vector (Island a) -> V.Vector [Int]
+      extractGenomes isls =
+        V.concatMap (\isl -> V.map (genomeToList . individual) (population isl)) isls
+
+      loop :: Int -> V.Vector (Island a) -> StdGen -> [Checkpoint a] -> [Checkpoint a]
+      loop !gen islands statsGen acc
+        | gen > totalGens = reverse acc
+        | otherwise =
+            let islands' = V.map stepIsland islands
+            in if gen `mod` migInterval == 0
+                 then
+                   let (stats, statsGen') = computeStats gen islands' statsGen
+                       genomes = extractGenomes islands'
+                       islands'' = migrate islands' topo nMigrants
+                   in loop (gen + 1) islands'' statsGen' (Checkpoint stats genomes : acc)
+                 else
+                   loop (gen + 1) islands' statsGen acc
+
+      (stats0, statsGen0) = computeStats 0 islands0 genInit
+      genomes0 = extractGenomes islands0
+
+  in loop 1 islands0 statsGen0 [Checkpoint stats0 genomes0]
