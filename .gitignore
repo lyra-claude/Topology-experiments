@@ -1,3 +1,5 @@
 dist-newstyle/
 __pycache__/
 *.pyc
+# Raw genome dump CSVs (large, regenerable via --dump-genomes flag)
+results/pca-genome-dumps/genomes/
