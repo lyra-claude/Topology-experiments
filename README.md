@@ -1,101 +1,102 @@
-# Topology-experiments
+# Topology-Experiments: How Communication Topology Affects Multi-Agent Performance
 
-Spectral analysis of migration topologies for island-model genetic algorithms,
-combined with empirical diversity measurements from GA simulations.
+Empirical experiments measuring how the communication graph topology of island-model genetic algorithms affects population diversity and fitness. We use two topological invariants -- the first Betti number (beta_1, cycle rank) and algebraic connectivity (lambda_2) -- to predict and explain GA performance across multiple fitness domains.
 
-## Purpose
+## Key Findings
 
-In an island-model GA, subpopulations (islands) evolve independently and
-periodically exchange individuals via migration.  The topology of the migration
-graph controls how fast diversity spreads across islands.
+- **beta_1 outpredicts model choice.** The cycle rank of the migration graph explains more variance in diversity (eta-squared up to 0.69) than population size, migration rate, or other hyperparameters.
+- **NK landscape ruggedness amplifies topology effects.** Smooth landscapes (K=0) show near-zero topology effect; rugged landscapes (K=6) show eta-squared = 0.69. Topology IS landscape-dependent.
+- **Two-invariant temporal separation.** beta_1 drives transient diversity (peaks early, fades by generation 500), while lambda_2 drives persistent diversity (emerges later, persists). Two independent channels confirmed by iso-spectral bridge experiments (320 runs).
+- **Directed cycles decorrelate from density.** Undirected beta_1 is confounded with edge density (beta_1 = |E| - n + 1). Directed cycle count escapes this confound -- 8 digraphs at constant density show 0 to 47 directed cycles. Directed cycle count predicts diversity at constant density (r = -0.68, eta-squared = 0.17).
+- **Non-abelian interference.** Different cycle arrangements at constant beta_1 produce different eta-squared (0.045 difference). Shared paths create correlated information flow. Arrangement is ~10% of the primary beta_1 effect.
+- **Goldilocks zone.** Too few cycles = fragile convergence; too many = wandering without selection pressure. Intermediate beta_1 is optimal, and the optimum depends on landscape ruggedness.
 
-**Algebraic connectivity** (lambda_2, the second-smallest eigenvalue of the
-Laplacian L = D - A) is a clean spectral proxy for mixing speed:
+## Architecture
 
-- `lambda_2 = 0` → disconnected graph, no mixing
-- Small `lambda_2` → slow mixing, diversity preserved longer
-- Large `lambda_2` → fast mixing, islands converge quickly
+The GA engine is written in **Haskell** (`src/`). Analysis and plotting scripts are in **Python**.
 
-This repo compares classic parameterized topologies with symmetric cubic graphs
-from the Foster census to understand the relationship between graph structure
-and GA performance.
-
-## Collaboration
-
-- **Claudius** selects topologies and calculates lambda_2 (spectral side).
-- **Lyra** runs the GA simulations and measures empirical diversity (empirical side).
-- PRs: Claudius reviews Lyra's simulation code; Lyra reviews Claudius's spectral analysis.
-
-## Lambda_2 Results
-
-Table sorted by lambda_2 ascending (computed by `compute_lambda2.py`):
-
-| Topology | n | k (avg degree) | lambda_2 | Notes |
-|----------|---|---------------|---------|-------|
-| none(n=8) | 8 | 0.00 | 0.000000 | isolated islands |
-| none(n=10) | 10 | 0.00 | 0.000000 | isolated islands |
-| none(n=16) | 16 | 0.00 | 0.000000 | isolated islands |
-| none(n=20) | 20 | 0.00 | 0.000000 | isolated islands |
-| ring(n=20) | 20 | 2.00 | 0.097887 | cycle C_n |
-| ring(n=16) | 16 | 2.00 | 0.152241 | cycle C_n |
-| rand_reg(n=20,k=3) | 20 | 3.00 | 0.285795 | random 3-regular |
-| ring(n=10) | 10 | 2.00 | 0.381966 | cycle C_n |
-| grid(n≈25) | 25 | 3.20 | 0.381966 | 2-D grid, actual n=25 |
-| rand_reg(n=16,k=3) | 16 | 3.00 | 0.456545 | random 3-regular |
-| grid(n≈16) | 16 | 3.00 | 0.585786 | 2-D grid, actual n=16 |
-| ring(n=8) | 8 | 2.00 | 0.585786 | cycle C_n |
-| dodecahedron | 20 | 3.00 | 0.763932 | n=20, cubic |
-| star(n=10) | 10 | 1.80 | 1.000000 | hub-and-spoke |
-| star(n=16) | 16 | 1.88 | 1.000000 | hub-and-spoke |
-| star(n=20) | 20 | 1.90 | 1.000000 | hub-and-spoke |
-| grid(n≈9) | 9 | 2.67 | 1.000000 | 2-D grid, actual n=9 |
-| desargues | 20 | 3.00 | 1.000000 | GP(10,3), n=20, cubic |
-| star(n=8) | 8 | 1.75 | 1.000000 | hub-and-spoke |
-| rand_reg(n=8,k=3) | 8 | 3.00 | 1.267949 | random 3-regular |
-| pappus | 18 | 3.00 | 1.267949 | n=18, cubic |
-| mobius_kantor | 16 | 3.00 | 1.267949 | GP(8,3), n=16, cubic |
-| heawood | 14 | 3.00 | 1.585786 | n=14, cubic |
-| hypercube(k=5) | 32 | 5.00 | 2.000000 | Q_5, n=2^5=32 |
-| hypercube(k=4) | 16 | 4.00 | 2.000000 | Q_4, n=2^4=16 |
-| hypercube(k=3) | 8 | 3.00 | 2.000000 | Q_3, n=2^3=8 |
-| cube | 8 | 3.00 | 2.000000 | Q_3, n=8, cubic |
-| petersen | 10 | 3.00 | 2.000000 | GP(5,2), n=10, cubic |
-| complete(n=8) | 8 | 7.00 | 8.000000 | fully connected K_n |
-| complete(n=10) | 10 | 9.00 | 10.000000 | fully connected K_n |
-| complete(n=16) | 16 | 15.00 | 16.000000 | fully connected K_n |
-| complete(n=20) | 20 | 19.00 | 20.000000 | fully connected K_n |
-
-## Parameter Space
-
-The full experiment varies the following dimensions:
-
-| Parameter | Candidates |
-|-----------|-----------|
-| **topology** | none, ring, star, complete, grid, hypercube, random-regular, cube, petersen, heawood, mobius-kantor, pappus, dodecahedron, desargues |
-| **n (islands)** | 8, 10, 14, 16, 18, 20, 25, 32 |
-| **population per island** | 20, 50, 100 |
-| **migration rate** | 0.01, 0.05, 0.1, 0.2 (fraction of island pop migrating per interval) |
-| **migration interval** | 5, 10, 20, 50 generations |
-
-## Files
+### Source (Haskell)
 
 | File | Purpose |
 |------|---------|
-| `topologies.py` | Adjacency matrices for all candidate topologies |
-| `compute_lambda2.py` | Compute lambda_2 for all topologies, print markdown table |
+| `src/Main.hs` | CLI entry point, experiment runner |
+| `src/IslandGA.hs` | Island-model GA with configurable topology |
+| `src/Domain.hs` | Typeclass for fitness domains |
+| `src/NKLandscape.hs` | NK landscape fitness domain (parameterized ruggedness) |
+| `src/Maze.hs` / `src/Maze8.hs` / `src/MazeCore.hs` | Maze generation and solving domain |
+| `src/OneMax.hs` | OneMax (bit-counting) baseline domain |
+| `src/SudokuSolver.hs` | Sudoku fitness domain |
 
-## Setup
+### Analysis (Python)
+
+| File | Purpose |
+|------|---------|
+| `compute_lambda2.py` | Compute lambda_2 for all topologies |
+| `topologies.py` | Adjacency matrices for candidate topologies |
+| `analyze_pilot.py` | Statistical analysis of pilot experiments |
+| `analyze_directed_full.py` | Directed cycle experiment analysis |
+| `analyze_deep_transient.py` | Transient dynamics and temporal separation |
+| `plot_star_vs_cycle.py` | Star vs cycle comparison figures |
+
+### Experiment Scripts
+
+Shell scripts in the root directory (`run_pilot.sh`, `run_directed_full.sh`, etc.) orchestrate batch experiment runs.
+
+## Experiments (by branch)
+
+| Branch | Experiment | Runs |
+|--------|-----------|------|
+| `feat/pilot-run-batch1` | Initial topology sweep (8 topologies x NK0/2/4/6) | ~160 |
+| `feat/bridge-experiment` | Iso-spectral bridge: beta_1 vs lambda_2 separation | 320 |
+| `feat/directed-cycle-experiment` | Directed cycles at constant density | 240 |
+| `feat/directed-cycles-multidomain` | Directed cycles across NK0/2/4/6 | 960 |
+| `feat/interference-experiment` | Cycle arrangement at constant beta_1 | 180+ |
+| `feat/star-vs-cycle` | Star vs cycle comparison | 270 |
+| `feat/multi-domain-experiments` | Maze and Sudoku cross-domain validation | 480+ |
+| `paper/ecta2026` | ECTA 2026 paper draft and figures | -- |
+
+Results (CSV data and figures) are stored in `results/`.
+
+## Running Experiments
+
+### Prerequisites
+
+- GHC 9.6+ and Cabal (Haskell toolchain)
+- Python 3 with `numpy`, `scipy`, `matplotlib`, `pandas`, `seaborn`
+
+### Build and run
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install networkx scipy numpy
-python compute_lambda2.py
+# Build the GA engine
+cabal build
+
+# Run a single experiment (example: NK landscape, K=2, ring topology, 8 islands)
+cabal run topology-experiments -- --domain nk --nk-k 2 --topology ring --islands 8 --generations 500 --runs 10
+
+# Run a batch experiment
+bash run_pilot.sh
 ```
 
-Or with `uv`:
+### Analysis
+
 ```bash
-uv venv
-uv pip install networkx scipy numpy
-.venv/bin/python compute_lambda2.py
+# Compute spectral properties
+python3 compute_lambda2.py
+
+# Analyze pilot results
+python3 analyze_pilot.py
 ```
+
+## Related Publications
+
+- [The One Number That Predicts Whether Your AI Agent Team Will Work](https://medium.com/@lyraclaude20/the-one-number-that-predicts-whether-your-ai-agent-team-will-work-4554a2e92a11) -- introducing beta_1 for multi-agent systems
+- [Why 85% x 85% x 85% Is the Wrong Math for Your AI Agent Team](https://medium.com/@lyraclaude20/why-85-x-85-x-85-is-the-wrong-math-for-your-ai-agent-team-d4c6a6a0808a) -- error propagation and topology
+- [The Topology of Agent Attacks](https://medium.com/@lyraclaude20/the-topology-of-agent-attacks-ac2af55e3304) -- security implications of communication topology
+
+## Collaboration
+
+This project is a collaboration between **Lyra** (GA simulations, empirical analysis) and **Claudius** (spectral theory, topology selection), with **Robin** providing the mathematical framework and research direction.
+
+## License
+
+Research code. Not yet formally licensed.
