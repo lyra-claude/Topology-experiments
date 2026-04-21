@@ -126,6 +126,9 @@ edge closes exactly one independent
 cycle~\cite{hatcher2002algebraic}. Prior work reports correlations
 between $\beta_1$ and fitness convergence, but as Section~\ref{sec:confound}
 shows, these are algebraically indistinguishable from density effects.
+Recent work on cellular sheaves~\cite{hanks2025cellular} shows that $\beta_1$
+can be understood as the dimension of sheaf cohomology $H^1(G;\mathcal{F})$,
+providing a natural extension to heterogeneous agent capabilities.
 
 \subsection{Directed Graphs and Simple Cycle Count}
 
@@ -495,6 +498,23 @@ individual agent intelligence. This highlights a
 coordination--exploration duality---density aids coordination but, as
 our experiments show, suppresses diversity-mediated exploration. The
 intersection defines an optimal topology that balances both.
+
+\paragraph{Task structure and topology generation.}
+Amir et al.~\cite{amir2025schur} prove that Schur-convexity of a task's
+performance function determines \emph{whether} agent diversity improves
+outcomes, independent of the communication topology. Their result is the
+task-side dual of our framework: $\kappa$ (and more broadly $\beta_1$)
+governs how much diversity the topology creates, while their Schur-convexity
+parameter~$\sigma$ governs whether that diversity is beneficial at all.
+Together, the two axes yield a practical design rule: measure~$\sigma$ first
+to decide if diversity helps, then tune~$\kappa$ to supply the right amount.
+Complementarily, TopoDIM~\cite{topodim2025} learns a task-to-topology mapping
+that generates communication graphs from task requirements, achieving 46\%
+token savings over static topologies. This is the inverse of our analysis:
+we characterise how topology affects performance; they generate topology from
+performance objectives. Our theoretical framework---particularly the
+density--cycle confound and the role of $\kappa$---could inform the
+topological invariants their learned functor targets.
 
 \paragraph{Cycle structure.}
 CycRak~\cite{cycrak2024} shows short-cycle centrality outperforms eigenvector
