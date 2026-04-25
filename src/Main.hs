@@ -330,6 +330,61 @@ interferenceNested = V.fromList [ [7]      -- 0: receives from 7
                                 ]
 
 -- ---------------------------------------------------------------------------
+-- Figure-eight cycle-length experiment (n=12, m=13, beta_1=2)
+-- Three directed graphs varying mean cycle length while holding
+-- node count, edge count, and cycle rank constant.
+-- From Claudius (2026-04-25): tests cycle-length -> spectral gap.
+-- ---------------------------------------------------------------------------
+
+-- | M1: mean cycle length 4.0 (C3 + C5 at v0, pendant chain 0->7->...->11)
+figEightM1 :: Topology
+figEightM1 = V.fromList [ [2, 6]   -- 0: receives from 2 (C3) and 6 (C5)
+                         , [0]      -- 1: receives from 0
+                         , [1]      -- 2: receives from 1
+                         , [0]      -- 3: receives from 0
+                         , [3]      -- 4: receives from 3
+                         , [4]      -- 5: receives from 4
+                         , [5]      -- 6: receives from 5
+                         , [0]      -- 7: receives from 0 (pendant start)
+                         , [7]      -- 8: receives from 7
+                         , [8]      -- 9: receives from 8
+                         , [9]      -- 10: receives from 9
+                         , [10]     -- 11: receives from 10
+                         ]
+
+-- | M2: mean cycle length 5.5 (C5 + C6 at v0, pendant 0->10->11)
+figEightM2 :: Topology
+figEightM2 = V.fromList [ [4, 9]   -- 0: receives from 4 (C5) and 9 (C6)
+                         , [0]      -- 1: receives from 0
+                         , [1]      -- 2: receives from 1
+                         , [2]      -- 3: receives from 2
+                         , [3]      -- 4: receives from 3
+                         , [0]      -- 5: receives from 0
+                         , [5]      -- 6: receives from 5
+                         , [6]      -- 7: receives from 6
+                         , [7]      -- 8: receives from 7
+                         , [8]      -- 9: receives from 8
+                         , [0]      -- 10: receives from 0 (pendant start)
+                         , [10]     -- 11: receives from 10
+                         ]
+
+-- | M3: mean cycle length 6.5 (C7 + C6 at v0, no pendant)
+figEightM3 :: Topology
+figEightM3 = V.fromList [ [6, 11]  -- 0: receives from 6 (C7) and 11 (C6)
+                         , [0]      -- 1: receives from 0
+                         , [1]      -- 2: receives from 1
+                         , [2]      -- 3: receives from 2
+                         , [3]      -- 4: receives from 3
+                         , [4]      -- 5: receives from 4
+                         , [5]      -- 6: receives from 5
+                         , [0]      -- 7: receives from 0
+                         , [7]      -- 8: receives from 7
+                         , [8]      -- 9: receives from 8
+                         , [9]      -- 10: receives from 9
+                         , [10]     -- 11: receives from 10
+                         ]
+
+-- ---------------------------------------------------------------------------
 -- Topology lookup
 -- ---------------------------------------------------------------------------
 
@@ -363,6 +418,10 @@ buildTopology name n = case name of
   "interference-adjacent"  -> interferenceAdjacent
   "interference-separated" -> interferenceSeparated
   "interference-nested"    -> interferenceNested
+  -- Figure-eight cycle-length experiment (n=12, m=13, beta_1=2)
+  "fig8-m1"           -> figEightM1
+  "fig8-m2"           -> figEightM2
+  "fig8-m3"           -> figEightM3
   _                   -> error $ "Unknown topology: " ++ name
 
 -- ---------------------------------------------------------------------------
