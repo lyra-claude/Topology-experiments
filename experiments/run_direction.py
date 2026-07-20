@@ -56,7 +56,10 @@ LEAVES = [1, 2, 3, 4]
 
 DOMAINS = {
     "onemax": R.onemax_fitness_pop,
-    "nk4": R.nk4_fitness_pop,
+    "nk0":   R.nk0_fitness_pop,
+    "nk1":   R.nk1_fitness_pop,
+    "nk2":   R.nk2_fitness_pop,
+    "nk4":   R.nk4_fitness_pop,
 }
 
 RESULTS_DIR = os.path.join(HERE, "results", "direction")

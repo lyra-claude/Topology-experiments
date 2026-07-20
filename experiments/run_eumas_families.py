@@ -77,7 +77,52 @@ def build_nk_table(n=100, k=4, landscape_seed=12345):
     return tables
 
 
-# Precompute NK4 table (used across all runs)
+# ---------------------------------------------------------------------------
+# Generic NK landscape builder (supports K in {0, 1, 2, 4})
+# ---------------------------------------------------------------------------
+
+def _build_nk_indices(n, k):
+    """Precompute bit-gathering indices for NK with given K."""
+    indices = np.zeros((n, k + 1), dtype=np.int32)
+    for i in range(n):
+        for j in range(k + 1):
+            indices[i, j] = (i + j) % n
+    return indices
+
+
+def build_nk_landscape(k, n=None, landscape_seed=12345):
+    """Build NK fitness tables + index arrays for given K.
+
+    Returns (table_list, indices_array, table_array) for the given K.
+    landscape_seed=12345 is fixed across all K — each K defines its own
+    landscape via its table size 2^(K+1).
+    """
+    if n is None:
+        n = GENOME_LENGTH
+    table = build_nk_table(n, k, landscape_seed)
+    indices = _build_nk_indices(n, k)
+    table_array = np.array(table)
+    return table, indices, table_array
+
+
+def _make_nk_fitness(k, indices, table_array):
+    """Return a vectorized NK fitness function closed over (k, indices, table_array)."""
+    def nk_fitness_pop(pop):
+        n_loci = GENOME_LENGTH
+        gathered = pop[:, indices]                                              # (n_ind, n_loci, K+1)
+        powers = 2 ** np.arange(k, -1, -1, dtype=np.int32)
+        table_indices = (gathered * powers[np.newaxis, np.newaxis, :]).sum(axis=2)  # (n_ind, n_loci)
+        locus_range = np.arange(n_loci)
+        contributions = table_array[locus_range[np.newaxis, :], table_indices]  # (n_ind, n_loci)
+        return contributions.mean(axis=1)
+    return nk_fitness_pop
+
+
+# ---------------------------------------------------------------------------
+# Precompute per-K globals (K=4 globals preserved bit-for-bit from original)
+# ---------------------------------------------------------------------------
+
+# K=4 — original globals, kept by their original names for backward compatibility
 NK4_TABLE = build_nk_table(GENOME_LENGTH, NK_K)
 
 
@@ -122,6 +167,16 @@ def nk4_fitness_pop(pop):
     contributions = NK4_TABLE_ARRAY[locus_range[np.newaxis, :], table_indices]  # (n_ind, n_loci)
 
     return contributions.mean(axis=1)
+
+
+# K=0, K=1, K=2 — built with same landscape_seed=12345
+_NK0_TABLE, _NK0_INDICES, _NK0_TABLE_ARRAY = build_nk_landscape(0)
+_NK1_TABLE, _NK1_INDICES, _NK1_TABLE_ARRAY = build_nk_landscape(1)
+_NK2_TABLE, _NK2_INDICES, _NK2_TABLE_ARRAY = build_nk_landscape(2)
+
+nk0_fitness_pop = _make_nk_fitness(0, _NK0_INDICES, _NK0_TABLE_ARRAY)
+nk1_fitness_pop = _make_nk_fitness(1, _NK1_INDICES, _NK1_TABLE_ARRAY)
+nk2_fitness_pop = _make_nk_fitness(2, _NK2_INDICES, _NK2_TABLE_ARRAY)
 
 
 # ---------------------------------------------------------------------------
